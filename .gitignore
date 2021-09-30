@@ -50,3 +50,13 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# CubeMX IDE Results
+target/
+.idea
+*.iml
+.settings/
+.project
+.classpath
+.DS_Store
+*.swp
