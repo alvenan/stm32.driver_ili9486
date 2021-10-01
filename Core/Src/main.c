@@ -109,10 +109,11 @@ int main(void)
 		  LCD_CS_GPIO_Port, LCD_CS_Pin,
 		  LCD_DC_GPIO_Port, LCD_DC_Pin,
 		  LCD_RST_GPIO_Port, LCD_RST_Pin);
-  ILI9341_setRotation(2);
-  ILI9341_Fill(COLOR_CYAN);
-  ILI9341_printText("Funcionou!!!!", 10, 10, COLOR_BLACK, COLOR_CYAN, 5);
-  ILI9341_printText("Finalmente!!!!", 10, 80, COLOR_BLACK, COLOR_CYAN, 5);
+  ILI9486_setRotation(2);
+//  ILI9486_Fill(COLOR_WHITE);
+  ILI9486_printText("8", 1, 1, COLOR_BLACK, COLOR_WHITE, 1);
+  ILI9486_printText("8", 1, 10, COLOR_BLACK, COLOR_WHITE, 2);
+  ILI9486_printText("8", 1, 20, COLOR_BLACK, COLOR_WHITE, 3);
   /* USER CODE END 2 */
 
   /* Infinite loop */
