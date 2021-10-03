@@ -14,6 +14,34 @@ static uint16_t tftDC_PIN;
 static GPIO_TypeDef  *tftRESET_GPIO;
 static uint16_t tftRESET_PIN;
 
+const uint8_t ili9486_init_sequence[] = {
+	2, ILI9486_MODE_CONTROL, 	0x0,
+	1, ILI9486_SLEEP_OUT, 		0x80, 150,
+	2, ILI9486_PIXEL_FORMAT, 	0x55,
+	2, ILI9486_MAC, 			0x48,
+	2, ILI9486_POWER3, 			0x44,
+	5, ILI9486_VCOM1, 			0x00, 0x00, 0x00,
+								0x00,
+	16, ILI9486_PGAMMA, 		0x0F, 0x1F, 0x1C,
+								0x0C, 0x0F, 0x08,
+								0x48, 0x98, 0x37,
+								0x0A, 0x13, 0x04,
+								0x11, 0x0D, 0x00,
+	16, ILI9486_NGAMMA, 		0x0F, 0x32, 0x2E,
+								0x0B, 0x0D, 0x05,
+								0x47, 0x75, 0x37,
+								0x06, 0x10, 0x03,
+								0x24, 0x20, 0x00,
+	16, ILI9486_GAMMA_CTRL1, 	0x0F, 0x32, 0x2E,
+								0x0B, 0x0D, 0x05,
+								0x47, 0x75, 0x37,
+								0x06, 0x10, 0x03,
+								0x24, 0x20, 0x00,
+	1, ILI9486_SLEEP_OUT,		0x80, 150,
+	1, ILI9486_DISPLAY_ON,
+	0
+};
+
 static //Text simple font array (You can your own font)
 const unsigned char font1[] = {
 	0x00, 0x00, 0x00, 0x00, 0x00,
@@ -276,8 +304,7 @@ const unsigned char font1[] = {
 
 //***** Functions prototypes *****//
 //1. Write Command to LCD
-void ILI9486_SendCommand(uint8_t com)
-{
+void ILI9486_SendCommand(uint8_t com) {
 	//*(__IO uint8_t *)(0x60000000) = com;
 	uint8_t tmpCmd = com;
 	//Set DC HIGH for COMMAND mode
@@ -291,8 +318,7 @@ void ILI9486_SendCommand(uint8_t com)
 }
 
 //2. Write data to LCD
-void ILI9486_SendData(uint8_t data)
-{
+void ILI9486_SendData(uint8_t data) {
 	//*(__IO uint8_t *)(0x60040000) = data;
 	uint8_t tmpCmd = data;
 	//Set DC LOW for DATA mode
@@ -305,8 +331,7 @@ void ILI9486_SendData(uint8_t data)
 	HAL_GPIO_WritePin(tftCS_GPIO, tftCS_PIN, GPIO_PIN_SET);
 }
 //2.2 Write multiple/DMA
-void ILI9486_SendData_Multi(uint16_t Colordata, uint32_t size)
-{
+void ILI9486_SendData_Multi(uint16_t Colordata, uint32_t size) {
 	uint8_t colorL,colorH;
 
 	//Set DC LOW for DATA mode
@@ -337,30 +362,6 @@ void ILI9486_SetCursorPosition(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y
   ILI9486_SendCommand (ILI9486_GRAM);
 }
 
-const uint8_t ili9486_init_sequence[] =
-{
-	2, ILI9486_MODE_CONTROL, 0x0,	// Interface Mode Control
-	1, ILI9486_SLEEP_OUT,		// Sleep OUT
-	0x80, 150,
-	2, ILI9486_PIXEL_FORMAT, 0x55,	// use 16 bits per pixel color
-	2, ILI9486_MAC, 0x48,	// MX, BGR == rotation 0
-	2, ILI9486_POWER3, 0x44,	// Power Control 3
-	// VCOM Control 1
-	5, ILI9486_VCOM1, 0x00, 0x00, 0x00, 0x00,
-	// PGAMCTRL(Positive Gamma Control)
-	16, ILI9486_PGAMMA, 0x0F, 0x1F, 0x1C, 0x0C, 0x0F, 0x08, 0x48, 0x98,
-	          0x37, 0x0A, 0x13, 0x04, 0x11, 0x0D, 0x00,
-	// NGAMCTRL(Negative Gamma Control)
-	16, ILI9486_NGAMMA, 0x0F, 0x32, 0x2E, 0x0B, 0x0D, 0x05, 0x47, 0x75,
-	          0x37, 0x06, 0x10, 0x03, 0x24, 0x20, 0x00,
-	// Digital Gamma Control 1
-	16, ILI9486_GAMMA_CTRL1, 0x0F, 0x32, 0x2E, 0x0B, 0x0D, 0x05, 0x47, 0x75,
-	          0x37, 0x06, 0x10, 0x03, 0x24, 0x20, 0x00,
-	1, ILI9486_SLEEP_OUT,	// Sleep OUT
-	0x80, 150, 	// wait some time
-	1, ILI9486_DISPLAY_ON,	// Display ON
-	0			// end marker
-};
 //4. Initialize function
 void ILI9486_Init(SPI_HandleTypeDef *spiLcdHandle,
 		GPIO_TypeDef *csPORT, uint16_t csPIN,
@@ -392,23 +393,18 @@ void ILI9486_Init(SPI_HandleTypeDef *spiLcdHandle,
 
 	while ( (numBytes=(ili9486_init_sequence[i]))>0 ) { // end marker == 0
 		i+=1;
-		if ( numBytes&0x80 ) {
-			//Serial.print("delay ");
+		if ( numBytes & 0x80 ) {
 			tmp = ili9486_init_sequence[i];
 			i+=1;
-			//Serial.println(tmp);
-			HAL_Delay(tmp); // up to 255 millis
+			HAL_Delay(tmp); // Up to 255 millis
 		} else {
-			//Serial.print(numBytes); Serial.print("byte(s): ");
 			tmp = ili9486_init_sequence[i];
 			i+=1;
-			//Serial.write('<'); Serial.print(tmp, HEX); Serial.write('>');
-			ILI9486_SendCommand(tmp); // first byte is command
+			ILI9486_SendCommand(tmp); // First byte is command
 			while (--numBytes) { //   For each argument...
 				tmp = ili9486_init_sequence[i];
 				i+=1;
-				//Serial.print(tmp, HEX); Serial.write('.');
-				ILI9486_SendData(tmp); // all consecutive bytes are data
+				ILI9486_SendData(tmp); // All consecutive bytes are data
 			}
 		}
 	}
