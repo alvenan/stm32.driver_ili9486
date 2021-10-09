@@ -23,7 +23,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "ili9486.h"
+#include "tft.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -105,37 +105,22 @@ int main(void)
   MX_SPI2_Init();
   /* USER CODE BEGIN 2 */
 
-  ILI9486_Init(&hspi2,
+  tft_init(&hspi2,
 		  LCD_CS_GPIO_Port,  LCD_CS_Pin,
 		  LCD_DC_GPIO_Port,  LCD_DC_Pin,
-		  LCD_RST_GPIO_Port, LCD_RST_Pin);
-  ILI9486_setRotation(2);
+		  LCD_RST_GPIO_Port, LCD_RST_Pin,
+		  320, 480);
+  tft_set_rotation(2);
 
-  ILI9486_Fill(COLOR_BLACK);
-  //ILI9486_printText("8", 10, 20, COLOR_ORANGE, COLOR_WHITE, 5);
-  ILI9486_Fill_Rect(18, 159, 480, 160, COLOR_GREEN);
-  ILI9486_Fill_Rect(17, 0, 18, 320, COLOR_GREEN);
 
-  char n[3] = "+5";
-  for(int y=6; y<320; y+=30) {
 
-	  ILI9486_printText(n, 1, y, COLOR_WHITE, COLOR_BLACK, 1);
-
-	  if(n[1]=='0')
-		  n[0]='-';
-
-	  if (n[0]=='+') {
-		 n[1]-=1;
-	  } else {
-		 n[1]+=1;
-	  }
-  }
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  test_fill_screen();
     /* USER CODE END WHILE */
     MX_USB_HOST_Process();
 
