@@ -162,15 +162,31 @@ void tft_draw_pixel(uint16_t x, uint16_t y, uint16_t color) {
 	tft_fill_rect(x, y, x, y, color);
 }
 
-void tft_draw_line(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color) {
+void tft_draw_horizontal_line(uint16_t x, uint16_t y, uint16_t w, uint16_t color) {
+	tft_fill_rect(x, y, w, y, color);
+}
+
+void tft_draw_vertical_line(uint16_t x, uint16_t y, uint16_t w, uint16_t color) {
+	tft_fill_rect(x, y, x, w, color);
+}
+
+void tft_draw_rect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color) {
+    tft_draw_horizontal_line(x, y  , x+w,  color);
+    tft_draw_horizontal_line(x, y+h, x+w,  color);
+
+    tft_draw_vertical_line(x  , y, y+h, color);
+    tft_draw_vertical_line(x+w, y, y+h, color);
+}
+
+void tft_draw_line(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color) {
 	int16_t steep = abs(y1 - y0) > abs(x1 - x0);
 	if (steep) {
-		swap_value(x0, y0);
-		swap_value(x1, y1);
+		swap(x0, y0);
+		swap(x1, y1);
 	}
 	if (x0 > x1) {
-		swap_value(x0, x1);
-		swap_value(y0, y1);
+		swap(x0, x1);
+		swap(y0, y1);
 	}
 
 	int16_t dx, dy;
@@ -225,7 +241,7 @@ void test_lines(uint16_t color) {
 
     tft_fill_screen(COLOR_BLACK);
 
-    x0 = x1 = tft_width - 1;
+    x0 = x1 = tft_width;
     y1 = tft_height;
     y0 = 0;
     for (; x1 > 0 ; x1 -= 5)
@@ -254,4 +270,28 @@ void test_lines(uint16_t color) {
 
 }
 
+void test_lines2(uint16_t color1, uint16_t color2) {
 
+    int x, y;
+
+    tft_fill_screen(COLOR_BLACK);
+    for (y = 0; y < tft_height; y += 5)
+    	tft_draw_horizontal_line(0, y, tft_width-1, color1);
+    for (x = 0; x < tft_width; x += 5)
+    	tft_draw_vertical_line(x, 0, tft_height-1, color2);
+}
+
+void test_rects(uint16_t color) {
+    int n, i1, i2,
+        cx = tft_width/2,
+        cy = tft_height/2;
+
+    tft_fill_screen(COLOR_BLACK);
+
+    n = min(tft_width, tft_height);
+    for (i1 = 2; i1 < n; i1 += 6) {
+        i2 = i1 / 2;
+        tft_draw_rect(cx - i2, cy - i2, i1, i1, color);
+    }
+
+}

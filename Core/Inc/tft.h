@@ -65,7 +65,8 @@
 #define COLOR_BRRED 		  0XFC07
 
 #define tft_delay(x) HAL_Delay(x);
-#define swap_value(x,y) { uint32_t tmp = x; x = y; y = tmp; }
+#define swap(x,y) { uint32_t tmp = x; x = y; y = tmp; }
+#define min(x,y)  ( ( x < y ) ? x : y )
 
 void tft_init(SPI_HandleTypeDef *spi,
 		GPIO_TypeDef *cs_port, uint16_t cs_pin,
@@ -76,6 +77,14 @@ void tft_set_rotation(uint8_t rotate);
 void tft_cursor_position(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
 void tft_fill_rect(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color);
 void tft_fill_screen(uint16_t color);
+void tft_draw_horizontal_line(uint16_t x, uint16_t y, uint16_t w, uint16_t color);
+void tft_draw_vertical_line(uint16_t x, uint16_t y, uint16_t w, uint16_t color);
 
+// Tests
+void test_fill_screen();
 void test_lines(uint16_t color);
+void test_lines2(uint16_t color1, uint16_t color2);
+void test_rects(uint16_t color);
+void test_fill_rects(uint16_t color1, uint16_t color2) {
+
 #endif /* TFT_H_ */
