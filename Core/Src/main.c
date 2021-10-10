@@ -112,8 +112,8 @@ int main(void)
 		  480, 320);
   tft_set_rotation(2);
 
-  //tft_draw_rect(100, 100, 200, 200, COLOR_CYAN);
-
+//  test_fill_rects(COLOR_GREEN, COLOR_ORANGE);
+  test_rects(COLOR_DGREEN);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -121,7 +121,7 @@ int main(void)
   while (1)
   {
 //	  test_fill_screen();
-	  test_lines(COLOR_WHITE);
+//	  test_lines2(COLOR_WHITE, COLOR_ORANGE);
     /* USER CODE END WHILE */
     MX_USB_HOST_Process();
 

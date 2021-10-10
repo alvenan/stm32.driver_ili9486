@@ -136,7 +136,7 @@ void tft_cursor_position(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1) {
   tft_send_cmd(tft, TFTCMD_GRAM);
 }
 
-void tft_fill_rect(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color) {
+void tft_fill_rectxy(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color) {
 	uint32_t n =  ((x1+1)-x0)*((y1+1)-y0);
 
 	if(n > tft_pixel_count)
@@ -149,6 +149,10 @@ void tft_fill_rect(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t 
 	}
 }
 
+void tft_fill_rect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color){
+	tft_fill_rectxy(x, y, x+w, y+h, color);
+}
+
 void tft_fill_screen(uint16_t color) {
 
 	if(rot_num == 1 || rot_num==3)
@@ -159,23 +163,23 @@ void tft_fill_screen(uint16_t color) {
 }
 
 void tft_draw_pixel(uint16_t x, uint16_t y, uint16_t color) {
-	tft_fill_rect(x, y, x, y, color);
+	tft_fill_rect(x, y, 0, 0, color);
 }
 
 void tft_draw_horizontal_line(uint16_t x, uint16_t y, uint16_t w, uint16_t color) {
-	tft_fill_rect(x, y, w, y, color);
+	tft_fill_rect(x, y, w, 0, color);
 }
 
 void tft_draw_vertical_line(uint16_t x, uint16_t y, uint16_t w, uint16_t color) {
-	tft_fill_rect(x, y, x, w, color);
+	tft_fill_rect(x, y, 0, w, color);
 }
 
 void tft_draw_rect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color) {
-    tft_draw_horizontal_line(x, y  , x+w,  color);
-    tft_draw_horizontal_line(x, y+h, x+w,  color);
+    tft_draw_horizontal_line(x, y  , w,  color);
+    tft_draw_horizontal_line(x, y+h, w,  color);
 
-    tft_draw_vertical_line(x  , y, y+h, color);
-    tft_draw_vertical_line(x+w, y, y+h, color);
+    tft_draw_vertical_line(x  , y, h, color);
+    tft_draw_vertical_line(x+w, y, h, color);
 }
 
 void tft_draw_line(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color) {
@@ -283,15 +287,31 @@ void test_lines2(uint16_t color1, uint16_t color2) {
 
 void test_rects(uint16_t color) {
     int n, i1, i2,
-        cx = tft_width/2,
-        cy = tft_height/2;
+        x = tft_width/2,
+        y = tft_height/2;
 
     tft_fill_screen(COLOR_BLACK);
 
     n = min(tft_width, tft_height);
     for (i1 = 2; i1 < n; i1 += 6) {
         i2 = i1 / 2;
-        tft_draw_rect(cx - i2, cy - i2, i1, i1, color);
+        tft_draw_rect(x-i2, y-i2, i1, i1, color);
     }
 
+}
+
+void test_fill_rects(uint16_t color1, uint16_t color2)
+{
+    int n, i1, i2,
+       x = tft_width /2,
+       y = tft_height/2;
+
+    tft_fill_screen(COLOR_BLACK);
+    n = min(tft_width, tft_height);
+    for (i1 = n; i1 > 0; i1 -= 5) {
+        i2 = i1 / 2;
+
+        tft_fill_rect(x-i2, y-i2, i1, i1, color1);
+        tft_draw_rect(x-i2, y-i2, i1, i1, color2);
+    }
 }
