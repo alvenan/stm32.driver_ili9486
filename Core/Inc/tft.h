@@ -76,10 +76,18 @@ void tft_init(SPI_HandleTypeDef *spi,
 void tft_set_rotation(uint8_t rotate);
 void tft_cursor_position(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
 void tft_fill_rectxy(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color);
+void tft_fill_rect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color);
 void tft_fill_screen(uint16_t color);
+void tft_draw_pixel(uint16_t x, uint16_t y, uint16_t color);
+void tft_draw_line(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color);
 void tft_draw_horizontal_line(uint16_t x, uint16_t y, uint16_t w, uint16_t color);
 void tft_draw_vertical_line(uint16_t x, uint16_t y, uint16_t w, uint16_t color);
+void tft_draw_rect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color);
+void tft_draw_round_rect(int16_t x, int16_t y, int16_t w, int16_t h, int16_t r, uint16_t color);
+void tft_fill_round_rect(int16_t x, int16_t y, int16_t w, int16_t h, int16_t r, uint16_t color);
 void tft_draw_circle(int16_t x0, int16_t y0, int16_t r, uint16_t color);
+void tft_draw_circle_helper( int16_t x0, int16_t y0, int16_t r, uint8_t cornername, uint16_t color);
+void tft_fill_circle_helper(int16_t x0, int16_t y0, int16_t r, uint8_t corners, int16_t delta, uint16_t color);
 void tft_draw_triangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t color);
 void tft_fill_triangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t color);
 // Tests
@@ -91,4 +99,6 @@ void test_fill_rects(uint16_t color1, uint16_t color2);
 void test_circles(uint8_t radius, uint16_t color);
 void test_triangles(uint16_t color);
 void test_fill_triangles(uint16_t color);
+void test_round_rects();
+void test_fill_round_rects();
 #endif /* TFT_H_ */

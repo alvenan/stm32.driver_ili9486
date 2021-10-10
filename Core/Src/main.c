@@ -116,8 +116,11 @@ int main(void)
 //  test_rects(COLOR_DGREEN);
 
 //  test_circles(50, COLOR_CYAN);
-  test_triangles(COLOR_CYAN);
-  test_fill_triangles(COLOR_BLUE2);
+//  test_triangles(COLOR_CYAN);
+//  test_fill_triangles(COLOR_BLUE2);
+
+//  test_round_rects();
+  test_fill_round_rects();
 
 
   /* USER CODE END 2 */

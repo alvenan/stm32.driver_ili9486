@@ -15,6 +15,13 @@ static TFT *tft;
 static uint8_t rot_num = 1;
 static uint32_t tft_width, tft_height, tft_pixel_count;
 
+uint16_t color565(uint8_t r, uint8_t g, uint8_t b) {
+	return ((r & 0xF8) << 8)  |
+			((g & 0xFC) << 3) |
+			((b & 0xF8) >> 3);
+}
+
+
 void tft_init(SPI_HandleTypeDef *spi,
 		GPIO_TypeDef *cs_port, uint16_t cs_pin,
 		GPIO_TypeDef *dc_port, uint16_t dc_pin,
@@ -182,6 +189,32 @@ void tft_draw_rect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color) {
     tft_draw_vertical_line(x+w, y, h, color);
 }
 
+void tft_draw_round_rect(int16_t x, int16_t y, int16_t w, int16_t h, int16_t r, uint16_t color) {
+    int16_t max_radius = ((w < h) ? w : h) / 2;
+    if(r > max_radius) r = max_radius;
+
+    tft_draw_horizontal_line(x+r  , y    , w-2*r, color); // Top
+    tft_draw_horizontal_line(x+r  , y+h-1, w-2*r, color); // Bottom
+    tft_draw_vertical_line	(x	  , y+r  , h-2*r, color); // Left
+    tft_draw_vertical_line	(x+w-1, y+r  , h-2*r, color); // Right
+
+    tft_draw_circle_helper(x+r    , y+r    , r, 1, color);
+    tft_draw_circle_helper(x+w-r-1, y+r    , r, 2, color);
+    tft_draw_circle_helper(x+w-r-1, y+h-r-1, r, 4, color);
+    tft_draw_circle_helper(x+r    , y+h-r-1, r, 8, color);
+}
+
+void tft_fill_round_rect(int16_t x, int16_t y, int16_t w, int16_t h, int16_t r, uint16_t color) {
+    int16_t max_radius = ((w < h) ? w : h) / 2;
+    if(r > max_radius)
+    	r = max_radius;
+
+    tft_fill_rect(x+r, y, w-2*r, h, color);
+
+    tft_fill_circle_helper(x+w-r-1, y+r, r, 1, h-2*r-1, color);
+    tft_fill_circle_helper(x+r    , y+r, r, 2, h-2*r-1, color);
+}
+
 void tft_draw_line(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color) {
 	int16_t steep = abs(y1 - y0) > abs(x1 - x0);
 	if (steep) {
@@ -251,6 +284,77 @@ void tft_draw_circle(int16_t x0, int16_t y0, int16_t r, uint16_t color) {
         tft_draw_pixel(x0 - y, y0 - x, color);
     }
 }
+
+void tft_draw_circle_helper( int16_t x0, int16_t y0, int16_t r, uint8_t cornername, uint16_t color) {
+    int16_t f     = 1 - r;
+    int16_t ddF_x = 1;
+    int16_t ddF_y = -2 * r;
+    int16_t x     = 0;
+    int16_t y     = r;
+
+    while (x<y) {
+        if (f >= 0) {
+            y--;
+            ddF_y += 2;
+            f     += ddF_y;
+        }
+        x++;
+        ddF_x += 2;
+        f     += ddF_x;
+        if (cornername & 0x4) {
+            tft_draw_pixel(x0 + x, y0 + y, color);
+            tft_draw_pixel(x0 + y, y0 + x, color);
+        }
+        if (cornername & 0x2) {
+        	tft_draw_pixel(x0 + x, y0 - y, color);
+        	tft_draw_pixel(x0 + y, y0 - x, color);
+        }
+        if (cornername & 0x8) {
+        	tft_draw_pixel(x0 - y, y0 + x, color);
+        	tft_draw_pixel(x0 - x, y0 + y, color);
+        }
+        if (cornername & 0x1) {
+        	tft_draw_pixel(x0 - y, y0 - x, color);
+        	tft_draw_pixel(x0 - x, y0 - y, color);
+        }
+    }
+}
+
+void tft_fill_circle_helper(int16_t x0, int16_t y0, int16_t r, uint8_t corners, int16_t delta, uint16_t color) {
+
+    int16_t f     = 1 - r;
+    int16_t ddF_x = 1;
+    int16_t ddF_y = -2 * r;
+    int16_t x     = 0;
+    int16_t y     = r;
+    int16_t px    = x;
+    int16_t py    = y;
+
+    delta++;
+
+    while(x < y) {
+        if (f >= 0) {
+            y--;
+            ddF_y += 2;
+            f     += ddF_y;
+        }
+        x++;
+        ddF_x += 2;
+        f     += ddF_x;
+
+        if(x < (y + 1)) {
+            if(corners & 1) tft_draw_vertical_line(x0+x, y0-y, 2*y+delta, color);
+            if(corners & 2) tft_draw_vertical_line(x0-x, y0-y, 2*y+delta, color);
+        }
+        if(y != py) {
+            if(corners & 1) tft_draw_vertical_line(x0+py, y0-px, 2*px+delta, color);
+            if(corners & 2) tft_draw_vertical_line(x0-py, y0-px, 2*px+delta, color);
+            py = y;
+        }
+        px = x;
+    }
+}
+
 void tft_draw_triangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t color) {
 	tft_draw_line(x0, y0, x1, y1, color);
 	tft_draw_line(x1, y1, x2, y2, color);
@@ -472,4 +576,38 @@ void test_fill_triangles(uint16_t color) {
         tft_draw_triangle(cx, cy - i, cx - i, cy + i, cx + i, cy + i,
                          color);
     }
+}
+
+void test_round_rects() {
+    int w, i1, i2, red, step,
+        cx = tft_width/2,
+        cy = tft_height/2;
+
+    tft_fill_screen(COLOR_WHITE);
+
+    w = min(tft_width, tft_height);
+    red = 0;
+    step = (256*6)/w;
+    for (i1 = 0; i1 < w; i1 += 6) {
+        i2 = i1 / 2;
+        red += step;
+        tft_draw_round_rect(cx - i2, cy - i2, i1, i1, i1 / 8, color565(red, 0, 0));
+    }
+}
+
+void test_fill_round_rects() {
+    int i1, i2, green, step,
+        cx = tft_width/2,
+        cy = tft_height/2;
+
+    tft_fill_screen(COLOR_WHITE);
+
+    green = 256;
+    step = (256 * 6) / min(tft_width, tft_height);
+    for (i1 = min(tft_width, tft_height); i1 > 20; i1 -= 6) {
+        i2 = i1 / 2;
+        green -= step;
+        tft_fill_round_rect(cx-i2, cy-i2, i1, i1, i1/8, color565(0, green, 0));
+    }
+
 }
