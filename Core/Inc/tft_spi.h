@@ -11,15 +11,17 @@
 #include "tft.h"
 #include <stdlib.h>
 
+#define SPI_SIZE 1
+#define SPI_TIMEOUT 5
+
 #define tft_dc_cmd(x) HAL_GPIO_WritePin(x->dc_port, x->dc_pin, GPIO_PIN_RESET)
 #define tft_dc_data(x) HAL_GPIO_WritePin(x->dc_port, x->dc_pin, GPIO_PIN_SET)
 #define tft_cs_on(x) HAL_GPIO_WritePin(x->cs_port, x->cs_pin, GPIO_PIN_RESET)
 #define tft_cs_off(x) HAL_GPIO_WritePin(x->cs_port, x->cs_pin, GPIO_PIN_SET)
 #define tft_rst_on(x) HAL_GPIO_WritePin(x->rst_port, x->rst_pin, GPIO_PIN_RESET)
 #define tft_rst_off(x) HAL_GPIO_WritePin(x->rst_port, x->rst_pin, GPIO_PIN_SET)
+#define tft_spi_transmit(x,y) HAL_SPI_Transmit(x->spi_handler, &y, SPI_SIZE, SPI_TIMEOUT)
 
-#define SPI_SIZE 1
-#define SPI_TIMEOUT 5
 
 typedef struct {
 	SPI_HandleTypeDef *spi_handler;

@@ -109,10 +109,10 @@ int main(void)
 		  LCD_CS_GPIO_Port,  LCD_CS_Pin,
 		  LCD_DC_GPIO_Port,  LCD_DC_Pin,
 		  LCD_RST_GPIO_Port, LCD_RST_Pin,
-		  320, 480);
+		  480, 320);
   tft_set_rotation(2);
 
-
+  //tft_draw_rect(100, 100, 200, 200, COLOR_CYAN);
 
   /* USER CODE END 2 */
 
@@ -120,7 +120,8 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  test_fill_screen();
+//	  test_fill_screen();
+	  test_lines(COLOR_WHITE);
     /* USER CODE END WHILE */
     MX_USB_HOST_Process();
 

@@ -51,7 +51,6 @@ void tft_init(SPI_HandleTypeDef *spi,
 	tft_send_data(tft, 0x00); tft_send_data(tft, 0x00);
 	tft_send_data(tft, 0x00); tft_send_data(tft, 0x00);
 
-
 	tft_send_cmd(tft, TFTCMD_PGAMMA);
 	tft_send_data(tft, 0x0f); tft_send_data(tft, 0x1f);
 	tft_send_data(tft, 0x1c); tft_send_data(tft, 0x0c);
@@ -120,36 +119,87 @@ void tft_set_rotation(uint8_t rotate) {
 			break;
 	}
 }
-void tft_cursor_position(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2) {
+void tft_cursor_position(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1) {
 
   tft_send_cmd(tft, TFTCMD_COLUMN_ADDR);
+  tft_send_data(tft, x0 >> 8);
+  tft_send_data(tft, x0 & 0xff);
   tft_send_data(tft, x1 >> 8);
   tft_send_data(tft, x1 & 0xff);
-  tft_send_data(tft, x2 >> 8);
-  tft_send_data(tft, x2 & 0xff);
 
   tft_send_cmd(tft, TFTCMD_PAGE_ADDR);
+  tft_send_data(tft, y0 >> 8);
+  tft_send_data(tft, y0 & 0xff);
   tft_send_data(tft, y1 >> 8);
   tft_send_data(tft, y1 & 0xff);
-  tft_send_data(tft, y2 >> 8);
-  tft_send_data(tft, y2 & 0xff);
 
   tft_send_cmd(tft, TFTCMD_GRAM);
+}
+
+void tft_fill_rect(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color) {
+	uint32_t n =  ((x1+1)-x0)*((y1+1)-y0);
+
+	if(n > tft_pixel_count)
+		n = tft_pixel_count;
+
+	tft_cursor_position(x0, y0, x1, y1);
+	for(;n > 0; n--) {
+		tft_send_data(tft, color>>8);
+		tft_send_data(tft, color&0xff);
+	}
 }
 
 void tft_fill_screen(uint16_t color) {
 
 	if(rot_num == 1 || rot_num==3)
-		tft_cursor_position(0, 0, tft_width-1, tft_height-1);
+		tft_fill_rect(0, 0, tft_height-1, tft_width-1, color);
 	else if(rot_num==2 || rot_num==4)
-		tft_cursor_position(0, 0, tft_height-1, tft_width-1);
+		tft_fill_rect(0, 0, tft_width-1, tft_height-1, color);
 
+}
 
-	for(uint32_t n = tft_pixel_count; n > 0; n--) {
-		tft_send_data(tft, color>>8);
-		tft_send_data(tft, color&0xff);
+void tft_draw_pixel(uint16_t x, uint16_t y, uint16_t color) {
+	tft_fill_rect(x, y, x, y, color);
+}
+
+void tft_draw_line(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color) {
+	int16_t steep = abs(y1 - y0) > abs(x1 - x0);
+	if (steep) {
+		swap_value(x0, y0);
+		swap_value(x1, y1);
+	}
+	if (x0 > x1) {
+		swap_value(x0, x1);
+		swap_value(y0, y1);
+	}
+
+	int16_t dx, dy;
+	dx = x1 - x0;
+	dy = abs(y1 - y0);
+
+	int16_t err = dx / 2;
+	int16_t ystep;
+
+	if (y0 < y1)
+		ystep = 1;
+	else
+	    ystep = -1;
+
+	for (; x0<=x1; x0++) {
+		if (steep)
+	      tft_draw_pixel(y0, x0, color);
+	     else
+	      tft_draw_pixel(x0, y0, color);
+
+	    err -= dy;
+	    if (err < 0) {
+	      y0 += ystep;
+	      err += dx;
+	    }
 	}
 }
+
+// Testes
 
 void test_fill_screen() {
 
@@ -159,3 +209,49 @@ void test_fill_screen() {
 	tft_fill_screen(COLOR_BLUE);
 	tft_fill_screen(COLOR_BLACK);
 }
+
+void test_lines(uint16_t color) {
+    int	x0, y0, x1, y1;
+
+	tft_fill_screen(COLOR_BLACK);
+
+    x0 = y0 = x1 = 0;
+    y1 = tft_height;
+    for (; x1 < tft_width; x1 += 5) {
+    	tft_draw_line(x0, y0, x1, y1, color);
+    }
+    for (; y1 > 0; y1 -= 5)
+    	tft_draw_line(x0, y0, x1, y1, color);
+
+    tft_fill_screen(COLOR_BLACK);
+
+    x0 = x1 = tft_width - 1;
+    y1 = tft_height;
+    y0 = 0;
+    for (; x1 > 0 ; x1 -= 5)
+    	tft_draw_line(x0, y0, x1, y1, color);
+    for (; y1 > 0; y1 -= 5)
+    	tft_draw_line(x0, y0, x1, y1, color);
+
+    tft_fill_screen(COLOR_BLACK);
+
+    x0 = tft_width;
+    y0 = y1 = tft_height;
+    x1 = 0;
+    for (; y1 > 0; y1 -= 5)
+    	tft_draw_line(x0, y0, x1, y1, color);
+    for (; x1 < tft_width; x1 += 5)
+    	tft_draw_line(x0, y0, x1, y1, color);
+
+    tft_fill_screen(COLOR_BLACK);
+
+    x0 = x1 = y1 = 0;
+    y0 = tft_height;
+    for (; x1 < tft_width; x1 += 5)
+    	tft_draw_line(x0, y0, x1, y1, color);
+    for (; y1 < tft_height; y1 += 5)
+    	tft_draw_line(x0, y0, x1, y1, color);
+
+}
+
+

@@ -8,16 +8,14 @@
 #include "tft_spi.h"
 
 void tft_send_cmd(TFT *tft, uint8_t cmd) {
-	uint8_t tmp_cmd = cmd;
 	tft_dc_cmd(tft); tft_cs_on(tft);
-	HAL_SPI_Transmit(tft->spi_handler, &tmp_cmd, SPI_SIZE, SPI_TIMEOUT);
+	tft_spi_transmit(tft, cmd);
 	tft_cs_off(tft);
 }
 
 void tft_send_data(TFT *tft, uint8_t data) {
-	uint8_t tmp_data = data;
 	tft_dc_data(tft); tft_cs_on(tft);
-	HAL_SPI_Transmit(tft->spi_handler, &tmp_data, SPI_SIZE, SPI_TIMEOUT);
+	tft_spi_transmit(tft, data);
 	tft_cs_off(tft);
 }
 

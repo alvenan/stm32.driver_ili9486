@@ -11,6 +11,7 @@
 #include "stm32f4xx_hal.h"
 
 #define TFT_SPI
+#define TFT_ILI9486
 
 #define WIDTH       320
 #define HEIGHT      480
@@ -64,6 +65,7 @@
 #define COLOR_BRRED 		  0XFC07
 
 #define tft_delay(x) HAL_Delay(x);
+#define swap_value(x,y) { uint32_t tmp = x; x = y; y = tmp; }
 
 void tft_init(SPI_HandleTypeDef *spi,
 		GPIO_TypeDef *cs_port, uint16_t cs_pin,
@@ -72,5 +74,8 @@ void tft_init(SPI_HandleTypeDef *spi,
 		uint32_t width, uint32_t height);
 void tft_set_rotation(uint8_t rotate);
 void tft_cursor_position(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
+void tft_fill_rect(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color);
 void tft_fill_screen(uint16_t color);
+
+void test_lines(uint16_t color);
 #endif /* TFT_H_ */
