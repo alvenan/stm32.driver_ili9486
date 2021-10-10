@@ -13,10 +13,6 @@
 #define TFT_SPI
 #define TFT_ILI9486
 
-#define WIDTH       320
-#define HEIGHT      480
-#define PIXEL_COUNT	WIDTH * HEIGHT
-
 #define TFTCMD_NOP				0x00
 #define TFTCMD_SLEEP_OUT		0x11
 #define TFTCMD_DISPLAY_ON		0x29
@@ -68,6 +64,7 @@
 #define swap(x,y) { uint32_t tmp = x; x = y; y = tmp; }
 #define min(x,y)  ( ( x < y ) ? x : y )
 
+// Setup
 void tft_init(SPI_HandleTypeDef *spi,
 		GPIO_TypeDef *cs_port, uint16_t cs_pin,
 		GPIO_TypeDef *dc_port, uint16_t dc_pin,
@@ -75,6 +72,8 @@ void tft_init(SPI_HandleTypeDef *spi,
 		uint32_t width, uint32_t height);
 void tft_set_rotation(uint8_t rotate);
 void tft_cursor_position(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
+
+// Shapes
 void tft_fill_rectxy(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color);
 void tft_fill_rect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color);
 void tft_fill_screen(uint16_t color);
