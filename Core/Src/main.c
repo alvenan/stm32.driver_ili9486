@@ -113,7 +113,13 @@ int main(void)
   tft_set_rotation(2);
 
 //  test_fill_rects(COLOR_GREEN, COLOR_ORANGE);
-  test_rects(COLOR_DGREEN);
+//  test_rects(COLOR_DGREEN);
+
+//  test_circles(50, COLOR_CYAN);
+  test_triangles(COLOR_CYAN);
+  test_fill_triangles(COLOR_BLUE2);
+
+
   /* USER CODE END 2 */
 
   /* Infinite loop */

@@ -79,12 +79,16 @@ void tft_fill_rectxy(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_
 void tft_fill_screen(uint16_t color);
 void tft_draw_horizontal_line(uint16_t x, uint16_t y, uint16_t w, uint16_t color);
 void tft_draw_vertical_line(uint16_t x, uint16_t y, uint16_t w, uint16_t color);
-
+void tft_draw_circle(int16_t x0, int16_t y0, int16_t r, uint16_t color);
+void tft_draw_triangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t color);
+void tft_fill_triangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t color);
 // Tests
 void test_fill_screen();
 void test_lines(uint16_t color);
 void test_lines2(uint16_t color1, uint16_t color2);
 void test_rects(uint16_t color);
 void test_fill_rects(uint16_t color1, uint16_t color2);
-
+void test_circles(uint8_t radius, uint16_t color);
+void test_triangles(uint16_t color);
+void test_fill_triangles(uint16_t color);
 #endif /* TFT_H_ */

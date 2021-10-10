@@ -219,6 +219,114 @@ void tft_draw_line(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t 
 	}
 }
 
+void tft_draw_circle(int16_t x0, int16_t y0, int16_t r, uint16_t color) {
+    int16_t f = 1 - r;
+    int16_t ddF_x = 1;
+    int16_t ddF_y = -2 * r;
+    int16_t x = 0;
+    int16_t y = r;
+
+    tft_draw_pixel(x0  , y0+r, color);
+    tft_draw_pixel(x0  , y0-r, color);
+    tft_draw_pixel(x0+r, y0  , color);
+    tft_draw_pixel(x0-r, y0  , color);
+
+    while (x<y) {
+        if (f >= 0) {
+            y--;
+            ddF_y += 2;
+            f += ddF_y;
+        }
+        x++;
+        ddF_x += 2;
+        f += ddF_x;
+
+        tft_draw_pixel(x0 + x, y0 + y, color);
+        tft_draw_pixel(x0 - x, y0 + y, color);
+        tft_draw_pixel(x0 + x, y0 - y, color);
+        tft_draw_pixel(x0 - x, y0 - y, color);
+        tft_draw_pixel(x0 + y, y0 + x, color);
+        tft_draw_pixel(x0 - y, y0 + x, color);
+        tft_draw_pixel(x0 + y, y0 - x, color);
+        tft_draw_pixel(x0 - y, y0 - x, color);
+    }
+}
+void tft_draw_triangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t color) {
+	tft_draw_line(x0, y0, x1, y1, color);
+	tft_draw_line(x1, y1, x2, y2, color);
+	tft_draw_line(x2, y2, x0, y0, color);
+}
+
+void tft_fill_triangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t color) {
+    int16_t a, b, y, last;
+
+    if (y0 > y1) {
+        swap(y0, y1);
+        swap(x0, x1);
+    }
+    if (y1 > y2) {
+        swap(y2, y1);
+        swap(x2, x1);
+    }
+    if (y0 > y1) {
+        swap(y0, y1);
+        swap(x0, x1);
+    }
+
+    if(y0 == y2) {
+        a = b = x0;
+        if(x1 < a)
+        	a = x1;
+        else if(x1 > b)
+        	b = x1;
+
+        if(x2 < a)
+        	a = x2;
+        else if(x2 > b)
+        	b = x2;
+        tft_draw_horizontal_line(a, y0, b-a+1, color);
+        return;
+    }
+
+    int16_t
+    dx01 = x1 - x0,
+    dy01 = y1 - y0,
+    dx02 = x2 - x0,
+    dy02 = y2 - y0,
+    dx12 = x2 - x1,
+    dy12 = y2 - y1;
+    int32_t
+    sa = 0,
+    sb = 0;
+
+    if(y1 == y2)
+    	last = y1;
+    else
+    	last = y1-1;
+
+    for(y=y0; y<=last; y++) {
+        a = x0 + sa / dy01;
+        b = x0 + sb / dy02;
+        sa += dx01;
+        sb += dx02;
+
+        if(a > b) swap(a,b);
+        tft_draw_horizontal_line(a, y, b-a+1, color);
+    }
+
+    sa = (int32_t)dx12 * (y - y1);
+    sb = (int32_t)dx02 * (y - y0);
+    for(; y<=y2; y++) {
+        a = x1 + sa / dy12;
+        b = x0 + sb / dy02;
+        sa += dx12;
+        sb += dx02;
+        if(a > b)
+        	swap(a,b);
+        tft_draw_horizontal_line(a, y, b-a+1, color);
+    }
+}
+
 // Testes
 
 void test_fill_screen() {
@@ -307,11 +415,61 @@ void test_fill_rects(uint16_t color1, uint16_t color2)
        y = tft_height/2;
 
     tft_fill_screen(COLOR_BLACK);
+
     n = min(tft_width, tft_height);
     for (i1 = n; i1 > 0; i1 -= 5) {
         i2 = i1 / 2;
 
         tft_fill_rect(x-i2, y-i2, i1, i1, color1);
         tft_draw_rect(x-i2, y-i2, i1, i1, color2);
+    }
+}
+
+void test_circles(uint8_t radius, uint16_t color) {
+    int x, y,
+	diameter = radius*2,
+	w = tft_width+radius,
+	h = tft_height+radius;
+
+    tft_fill_screen(COLOR_BLACK);
+
+    for (x = 0; x < w; x += diameter) {
+        for (y = 0; y < h; y += diameter) {
+            tft_draw_circle(x, y, radius, color);
+        }
+    }
+
+}
+
+void test_triangles(uint16_t color) {
+    int n, i,
+	cx = tft_width/2,
+    cy = tft_height/2;
+
+    tft_fill_screen(COLOR_BLACK);
+
+    n = min(cx, cy);
+    for (i = 0; i < n; i += 5) {
+        tft_draw_triangle(
+            cx    , cy - i, // peak
+            cx - i, cy + i, // bottom left
+            cx + i, cy + i, // bottom right
+            color);
+    }
+
+}
+
+void test_fill_triangles(uint16_t color) {
+    int i,
+	cx = tft_width /2,
+    cy = tft_height/2;
+
+    tft_fill_screen(COLOR_BLACK);
+
+    for (i = min(cx, cy); i > 10; i -= 5) {
+        tft_fill_triangle(cx, cy - i, cx - i, cy + i, cx + i, cy + i,
+                         color);
+        tft_draw_triangle(cx, cy - i, cx - i, cy + i, cx + i, cy + i,
+                         color);
     }
 }
