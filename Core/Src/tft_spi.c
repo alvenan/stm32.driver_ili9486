@@ -8,19 +8,22 @@
 #include "tft_spi.h"
 
 void tft_send_cmd(TFT *tft, uint8_t cmd) {
-	tft_dc_cmd(tft); tft_cs_on(tft);
+	tft_dc_cmd(tft); 
+	tft_cs_on(tft);
 	tft_spi_transmit(tft, cmd);
 	tft_cs_off(tft);
 }
 
 void tft_send_data(TFT *tft, uint8_t data) {
-	tft_dc_data(tft); tft_cs_on(tft);
+	tft_dc_data(tft); 
+	tft_cs_on(tft);
 	tft_spi_transmit(tft, data);
 	tft_cs_off(tft);
 }
 
 void tft_send_data16(TFT *tft, uint16_t data) {
-	tft_dc_data(tft); tft_cs_on(tft);
+	tft_dc_data(tft); 
+	tft_cs_on(tft);
 	tft_spi_transmit16(tft, data);
 	tft_cs_off(tft);
 }
