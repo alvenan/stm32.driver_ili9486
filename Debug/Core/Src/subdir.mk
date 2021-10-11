@@ -5,6 +5,8 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
+../Core/Src/batman.c \
+../Core/Src/fonts.c \
 ../Core/Src/main.c \
 ../Core/Src/stm32f4xx_hal_msp.c \
 ../Core/Src/stm32f4xx_it.c \
@@ -15,6 +17,8 @@ C_SRCS += \
 ../Core/Src/tft_spi.c 
 
 C_DEPS += \
+./Core/Src/batman.d \
+./Core/Src/fonts.d \
 ./Core/Src/main.d \
 ./Core/Src/stm32f4xx_hal_msp.d \
 ./Core/Src/stm32f4xx_it.d \
@@ -25,6 +29,8 @@ C_DEPS += \
 ./Core/Src/tft_spi.d 
 
 OBJS += \
+./Core/Src/batman.o \
+./Core/Src/fonts.o \
 ./Core/Src/main.o \
 ./Core/Src/stm32f4xx_hal_msp.o \
 ./Core/Src/stm32f4xx_it.o \
