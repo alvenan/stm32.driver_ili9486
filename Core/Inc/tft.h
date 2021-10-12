@@ -15,56 +15,57 @@
 
 #ifdef TFT_SPI
 #include "tft_spi.h"
-#else
+#endif
+#ifdef TFT_PARALLEL
 #include "tft_parallel.h" /*TODO*/
 #endif
 
-#define TFTCMD_NOP			0x00
-#define TFTCMD_SLEEP_OUT	0x11
-#define TFTCMD_DISPLAY_ON	0x29
-#define TFTCMD_COLUMN_ADDR	0x2A
-#define TFTCMD_PAGE_ADDR	0x2B
-#define TFTCMD_GRAM			0x2C
-#define TFTCMD_MAC			0x36
-#define TFTCMD_PIXEL_FORMAT	0x3A
-#define TFTCMD_POWER3		0xC2
-#define TFTCMD_VCOM1		0xC5
-#define TFTCMD_PGAMMA		0xE0
-#define TFTCMD_NGAMMA		0xE1
-#define TFTCMD_GAMMA_CTRL1	0xE2
+#define TFTCMD_NOP				0x00
+#define TFTCMD_SLEEP_OUT		0x11
+#define TFTCMD_DISPLAY_ON		0x29
+#define TFTCMD_COLUMN_ADDR		0x2A
+#define TFTCMD_PAGE_ADDR		0x2B
+#define TFTCMD_GRAM				0x2C
+#define TFTCMD_MAC				0x36
+#define TFTCMD_PIXEL_FORMAT		0x3A
+#define TFTCMD_POWER3			0xC2
+#define TFTCMD_VCOM1			0xC5
+#define TFTCMD_PGAMMA			0xE0
+#define TFTCMD_NGAMMA			0xE1
+#define TFTCMD_GAMMA_CTRL1		0xE2
 
-#define MEMCONTROL	0x36
-#define MADCTL_MY	0x80
-#define MADCTL_MX	0x40
-#define MADCTL_MV	0x20
-#define MADCTL_ML	0x10
-#define MADCTL_RGB	0x00
-#define MADCTL_BGR	0x08
-#define MADCTL_MH	0x04
+#define MEMCONTROL			0x36
+#define MADCTL_MY			0x80
+#define MADCTL_MX			0x40
+#define MADCTL_MV			0x20
+#define MADCTL_ML			0x10
+#define MADCTL_RGB			0x00
+#define MADCTL_BGR			0x08
+#define MADCTL_MH			0x04
 
-#define COLOR_BLACK			0x0000
-#define COLOR_NAVY			0x000F
-#define COLOR_DGREEN		0x03E0
-#define COLOR_DCYAN			0x03EF
-#define COLOR_MAROON		0x7800
-#define COLOR_PURPLE		0x780F
-#define COLOR_OLIVE			0x7BE0
-#define COLOR_LGRAY			0xC618
-#define COLOR_DGRAY			0x7BEF
-#define COLOR_BLUE			0x001F
-#define COLOR_BLUE2			0x051D
-#define COLOR_GREEN			0x07E0
-#define COLOR_GREEN2		0xB723
-#define COLOR_GREEN3		0x8000
-#define COLOR_CYAN			0x07FF
-#define COLOR_RED			0xF800
-#define COLOR_MAGENTA		0xF81F
-#define COLOR_YELLOW		0xFFE0
-#define COLOR_WHITE			0xFFFF
-#define COLOR_ORANGE		0xFD20
-#define COLOR_GREENYELLOW	0xAFE5
-#define COLOR_BROWN			0XBC40
-#define COLOR_BRRED			0XFC07
+#define COLOR_BLACK				0x0000
+#define COLOR_NAVY				0x000F
+#define COLOR_DGREEN			0x03E0
+#define COLOR_DCYAN				0x03EF
+#define COLOR_MAROON			0x7800
+#define COLOR_PURPLE			0x780F
+#define COLOR_OLIVE				0x7BE0
+#define COLOR_LGRAY				0xC618
+#define COLOR_DGRAY				0x7BEF
+#define COLOR_BLUE				0x001F
+#define COLOR_BLUE2				0x051D
+#define COLOR_GREEN				0x07E0
+#define COLOR_GREEN2			0xB723
+#define COLOR_GREEN3			0x8000
+#define COLOR_CYAN				0x07FF
+#define COLOR_RED				0xF800
+#define COLOR_MAGENTA			0xF81F
+#define COLOR_YELLOW			0xFFE0
+#define COLOR_WHITE				0xFFFF
+#define COLOR_ORANGE			0xFD20
+#define COLOR_GREENYELLOW		0xAFE5
+#define COLOR_BROWN				0XBC40
+#define COLOR_BRRED				0XFC07
 
 #define tft_delay(x) HAL_Delay(x);
 #define swap(x,y) { uint32_t tmp = x; x = y; y = tmp; }
@@ -84,15 +85,15 @@ void tft_cursor_position(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
 // Shapes
 void tft_main_draw(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1,
 		uint16_t color);
-void tft_fill_rect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color);
-void tft_fill_screen(uint16_t color);
 void tft_draw_pixel(uint16_t x, uint16_t y, uint16_t color);
+void tft_fill_screen(uint16_t color);
 void tft_draw_line(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1,
 		uint16_t color);
 void tft_draw_horizontal_line(uint16_t x, uint16_t y, uint16_t w,
 		uint16_t color);
 void tft_draw_vertical_line(uint16_t x, uint16_t y, uint16_t w, uint16_t color);
 void tft_draw_rect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color);
+void tft_fill_rect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color);
 void tft_draw_round_rect(int16_t x, int16_t y, int16_t w, int16_t h, int16_t r,
 		uint16_t color);
 void tft_fill_round_rect(int16_t x, int16_t y, int16_t w, int16_t h, int16_t r,

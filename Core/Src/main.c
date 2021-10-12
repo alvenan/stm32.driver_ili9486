@@ -126,6 +126,8 @@ int main(void) {
 //	tft_draw_RGB_bitmap(150, 50, batman_256x256, 256, 256);
 
 	tft_draw_char(10, 10, 'A', COLOR_CYAN, COLOR_BLACK, 12);
+	test_round_rects();
+
 	/* USER CODE END 2 */
 
 	/* Infinite loop */

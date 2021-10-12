@@ -147,7 +147,7 @@ void tft_init(SPI_HandleTypeDef *spi, GPIO_TypeDef *cs_port, uint16_t cs_pin,
 	tft_send_cmd(tft, TFTCMD_SLEEP_OUT);
 
 	tft_delay(150);
-
+#ifdef TFT_ILI9486
 	tft_send_cmd(tft, TFTCMD_PIXEL_FORMAT);
 	tft_send_data(tft, 0x55);
 
@@ -213,7 +213,7 @@ void tft_init(SPI_HandleTypeDef *spi, GPIO_TypeDef *cs_port, uint16_t cs_pin,
 	tft_send_data(tft, 0x24);
 	tft_send_data(tft, 0x20);
 	tft_send_data(tft, 0x00);
-
+#endif
 	tft_send_cmd(tft, TFTCMD_SLEEP_OUT);
 	tft_send_cmd(tft, TFTCMD_DISPLAY_ON);
 
@@ -296,16 +296,16 @@ void tft_fill_screen(uint16_t color) {
 }
 
 void tft_draw_pixel(uint16_t x, uint16_t y, uint16_t color) {
-	tft_fill_rect(x, y, 0, 0, color);
+	tft_main_draw(x, y, x, y, color);
 }
 
 void tft_draw_horizontal_line(uint16_t x, uint16_t y, uint16_t w,
 		uint16_t color) {
-	tft_fill_rect(x, y, w, 0, color);
+	tft_main_draw(x, y, x + w, y, color);
 }
 
 void tft_draw_vertical_line(uint16_t x, uint16_t y, uint16_t w, uint16_t color) {
-	tft_fill_rect(x, y, 0, w, color);
+	tft_main_draw(x, y, x, y + w, color);
 }
 
 void tft_draw_rect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color) {
@@ -339,7 +339,7 @@ void tft_fill_round_rect(int16_t x, int16_t y, int16_t w, int16_t h, int16_t r,
 	if (r > max_radius)
 		r = max_radius;
 
-	tft_fill_rect(x + r, y, w - 2 * r, h, color);
+	tft_main_draw(x + r, y, x + r + w - 2 * r, y + h, color);
 
 	tft_fill_circle_helper(x + w - r - 1, y + r, r, 1, h - 2 * r - 1, color);
 	tft_fill_circle_helper(x + r, y + r, r, 2, h - 2 * r - 1, color);
@@ -594,15 +594,15 @@ void tft_draw_char(int16_t x, int16_t y, unsigned char c, uint16_t color,
 				if (size == 1) // default size
 					tft_draw_pixel(x + i, y + j, color);
 				else {  // big size
-					tft_fill_rect(x + (i * size), y + (j * size), size,
-							size + 1, color);
+					tft_main_draw(x + i * size, y + j * size,
+							x + (i + 1) * size, y + (j + 1) * size, color);
 				}
 			} else if (bg != color) {
 				if (size == 1) // default size
 					tft_draw_pixel(x + i, y + j, bg);
 				else {  // big size
-					tft_fill_rect(x + i * size, y + j * size, size, size + 1,
-							bg);
+					tft_main_draw(x + i * size, y + j * size,
+							x + (i + 1) * size, y + (j + 1) * size, bg);
 				}
 			}
 			line >>= 1;
