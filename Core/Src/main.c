@@ -122,9 +122,10 @@ int main(void) {
 //	tft_draw_char(30, 30, 'A', COLOR_BLACK,
 //			COLOR_YELLOW, 10);
 
-	extern const unsigned short batman_256x256[65536];
-	tft_draw_RGB_bitmap(50, 50, batman_256x256, 256, 256);
+//	extern const unsigned short batman_256x256[65536];
+//	tft_draw_RGB_bitmap(150, 50, batman_256x256, 256, 256);
 
+	tft_draw_char(10, 10, 'A', COLOR_CYAN, COLOR_BLACK, 12);
 	/* USER CODE END 2 */
 
 	/* Infinite loop */

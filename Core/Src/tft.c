@@ -6,10 +6,6 @@
  */
 
 #include "tft.h"
-#include "fonts.h"
-#ifdef TFT_SPI
-#include "tft_spi.h"
-#endif
 
 static TFT *tft;
 static uint8_t rot_num = 1;
@@ -142,9 +138,9 @@ void tft_init(SPI_HandleTypeDef *spi, GPIO_TypeDef *cs_port, uint16_t cs_pin,
 	tft = tft_interface_init(spi, cs_port, cs_pin, dc_port, dc_pin, rst_port,
 			rst_pin);
 
-	tft_rst_off(tft);
-	tft_rst_on(tft);
-	tft_rst_off(tft);
+	tft_spi_rst_off(tft);
+	tft_spi_rst_on(tft);
+	tft_spi_rst_off(tft);
 
 	tft_send_cmd(tft, TFTCMD_NOP);
 	tft_send_data(tft, 0x00);
@@ -272,7 +268,7 @@ void tft_cursor_position(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1) {
 	tft_send_cmd(tft, TFTCMD_GRAM);
 }
 
-void tft_fill_rectxy(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1,
+void tft_main_draw(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1,
 		uint16_t color) {
 	uint32_t n = ((x1 + 1) - x0) * ((y1 + 1) - y0);
 
@@ -287,7 +283,7 @@ void tft_fill_rectxy(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1,
 }
 
 void tft_fill_rect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color) {
-	tft_fill_rectxy(x, y, x + w, y + h, color);
+	tft_main_draw(x, y, x + w, y + h, color);
 }
 
 void tft_fill_screen(uint16_t color) {
@@ -598,16 +594,15 @@ void tft_draw_char(int16_t x, int16_t y, unsigned char c, uint16_t color,
 				if (size == 1) // default size
 					tft_draw_pixel(x + i, y + j, color);
 				else {  // big size
-					tft_fill_rectxy(x + (i * size), y + (j * size),
-							size + x + (i * size), size + 1 + y + (j * size),
-							color);
+					tft_fill_rect(x + (i * size), y + (j * size), size,
+							size + 1, color);
 				}
 			} else if (bg != color) {
 				if (size == 1) // default size
 					tft_draw_pixel(x + i, y + j, bg);
 				else {  // big size
-					tft_fill_rectxy(x + i * size, y + j * size,
-							size + x + i * size, size + 1 + y + j * size, bg);
+					tft_fill_rect(x + i * size, y + j * size, size, size + 1,
+							bg);
 				}
 			}
 			line >>= 1;
