@@ -99,6 +99,7 @@ void tft_draw_round_rect(int16_t x, int16_t y, int16_t w, int16_t h, int16_t r,
 void tft_fill_round_rect(int16_t x, int16_t y, int16_t w, int16_t h, int16_t r,
 		uint16_t color);
 void tft_draw_circle(int16_t x0, int16_t y0, int16_t r, uint16_t color);
+void tft_fill_circle(int16_t x, int16_t y, int16_t r, uint16_t color);
 void tft_draw_circle_helper(int16_t x0, int16_t y0, int16_t r,
 		uint8_t cornername, uint16_t color);
 void tft_fill_circle_helper(int16_t x0, int16_t y0, int16_t r, uint8_t corners,

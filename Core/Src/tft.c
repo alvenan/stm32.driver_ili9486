@@ -416,6 +416,12 @@ void tft_draw_circle(int16_t x0, int16_t y0, int16_t r, uint16_t color) {
 	}
 }
 
+void tft_fill_circle(int16_t x, int16_t y, int16_t r, uint16_t color) {
+	tft_draw_vertical_line(x, y-r, 2*r+1, color);
+	tft_fill_circle_helper(x, y, r, 3, 0, color);
+}
+
+
 void tft_draw_circle_helper(int16_t x0, int16_t y0, int16_t r,
 		uint8_t cornername, uint16_t color) {
 	int16_t f = 1 - r;

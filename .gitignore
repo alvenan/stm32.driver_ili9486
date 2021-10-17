@@ -53,6 +53,7 @@ dkms.conf
 
 # CubeMX IDE Results
 target/
+Debug/
 .idea
 *.iml
 .settings/
