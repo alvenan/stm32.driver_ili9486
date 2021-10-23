@@ -29,13 +29,6 @@ void tft_send_data(uint8_t data) {
 	tft_spi_cs_off(tft_spi_cs_port, tft_spi_cs_pin);
 }
 
-void tft_send_data16(uint16_t data) {
-	tft_spi_dc_data(tft_spi_dc_port, tft_spi_dc_pin);
-	tft_spi_cs_on(tft_spi_cs_port, tft_spi_cs_pin);
-	tft_spi_transmit16(tft_spi_handler, data);
-	tft_spi_cs_off(tft_spi_cs_port, tft_spi_cs_pin);
-}
-
 void tft_reset_on() {
 	tft_spi_rst_on(tft_spi_rst_port, tft_spi_rst_pin);
 }

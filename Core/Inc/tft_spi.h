@@ -22,7 +22,6 @@
 #define tft_spi_rst_on(x,y)		HAL_GPIO_WritePin(x, y, GPIO_PIN_RESET)
 #define tft_spi_rst_off(x,y)	HAL_GPIO_WritePin(x, y, GPIO_PIN_SET)
 #define tft_spi_transmit(x,y)	HAL_SPI_Transmit(x, &y, SPI_SIZE8, SPI_TIMEOUT)
-#define tft_spi_transmit16(x,y)	HAL_SPI_Transmit(x, &y, SPI_SIZE16, SPI_TIMEOUT)
 
 void tft_send_cmd(uint8_t cmd);
 void tft_send_data(uint8_t data);
