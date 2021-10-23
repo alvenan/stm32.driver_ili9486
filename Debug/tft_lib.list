@@ -39,13 +39,13 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING, OCTETS
  17 .debug_macro  00023cc4  00000000  00000000  00043ef0  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_line   00018be8  00000000  00000000  00067bb4  2**0
+ 18 .debug_line   00018be6  00000000  00000000  00067bb4  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .debug_str    000cc275  00000000  00000000  0008079c  2**0
+ 19 .debug_str    000cc289  00000000  00000000  0008079a  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 20 .comment      00000053  00000000  00000000  0014ca11  2**0
+ 20 .comment      00000053  00000000  00000000  0014ca23  2**0
                   CONTENTS, READONLY
- 21 .debug_frame  00004e7c  00000000  00000000  0014ca64  2**2
+ 21 .debug_frame  00004e7c  00000000  00000000  0014ca78  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -3330,10 +3330,10 @@ void tft_draw_char(int16_t x, int16_t y, unsigned char c, uint16_t color,
  8001724:	08008c68 	.word	0x08008c68
 
 08001728 <tft_send_cmd>:
-static GPIO_TypeDef *rst_port;
-static uint16_t cs_pin;
-static uint16_t dc_pin;
-static uint16_t rst_pin;
+static GPIO_TypeDef *tft_spi_rst_port;
+static uint16_t tft_spi_cs_pin;
+static uint16_t tft_spi_dc_pin;
+static uint16_t tft_spi_rst_pin;
 
 void tft_send_cmd(uint8_t cmd) {
  8001728:	b580      	push	{r7, lr}
@@ -3341,7 +3341,7 @@ void tft_send_cmd(uint8_t cmd) {
  800172c:	af00      	add	r7, sp, #0
  800172e:	4603      	mov	r3, r0
  8001730:	71fb      	strb	r3, [r7, #7]
-	tft_spi_dc_cmd(dc_port, dc_pin);
+	tft_spi_dc_cmd(tft_spi_dc_port, tft_spi_dc_pin);
  8001732:	4b11      	ldr	r3, [pc, #68]	; (8001778 <tft_send_cmd+0x50>)
  8001734:	681b      	ldr	r3, [r3, #0]
  8001736:	4a11      	ldr	r2, [pc, #68]	; (800177c <tft_send_cmd+0x54>)
@@ -3349,7 +3349,7 @@ void tft_send_cmd(uint8_t cmd) {
  800173a:	2200      	movs	r2, #0
  800173c:	4618      	mov	r0, r3
  800173e:	f000 fc1d 	bl	8001f7c <HAL_GPIO_WritePin>
-	tft_spi_cs_on(cs_port, cs_pin);
+	tft_spi_cs_on(tft_spi_cs_port, tft_spi_cs_pin);
  8001742:	4b0f      	ldr	r3, [pc, #60]	; (8001780 <tft_send_cmd+0x58>)
  8001744:	681b      	ldr	r3, [r3, #0]
  8001746:	4a0f      	ldr	r2, [pc, #60]	; (8001784 <tft_send_cmd+0x5c>)
@@ -3357,14 +3357,14 @@ void tft_send_cmd(uint8_t cmd) {
  800174a:	2200      	movs	r2, #0
  800174c:	4618      	mov	r0, r3
  800174e:	f000 fc15 	bl	8001f7c <HAL_GPIO_WritePin>
-	tft_spi_transmit(spi_handler, cmd);
+	tft_spi_transmit(tft_spi_handler, cmd);
  8001752:	4b0d      	ldr	r3, [pc, #52]	; (8001788 <tft_send_cmd+0x60>)
  8001754:	6818      	ldr	r0, [r3, #0]
  8001756:	1df9      	adds	r1, r7, #7
  8001758:	2305      	movs	r3, #5
  800175a:	2201      	movs	r2, #1
  800175c:	f003 fda5 	bl	80052aa <HAL_SPI_Transmit>
-	tft_spi_cs_off(cs_port, cs_pin);
+	tft_spi_cs_off(tft_spi_cs_port, tft_spi_cs_pin);
  8001760:	4b07      	ldr	r3, [pc, #28]	; (8001780 <tft_send_cmd+0x58>)
  8001762:	681b      	ldr	r3, [r3, #0]
  8001764:	4a07      	ldr	r2, [pc, #28]	; (8001784 <tft_send_cmd+0x5c>)
@@ -3391,7 +3391,7 @@ void tft_send_data(uint8_t data) {
  8001790:	af00      	add	r7, sp, #0
  8001792:	4603      	mov	r3, r0
  8001794:	71fb      	strb	r3, [r7, #7]
-	tft_spi_dc_data(dc_port, dc_pin);
+	tft_spi_dc_data(tft_spi_dc_port, tft_spi_dc_pin);
  8001796:	4b11      	ldr	r3, [pc, #68]	; (80017dc <tft_send_data+0x50>)
  8001798:	681b      	ldr	r3, [r3, #0]
  800179a:	4a11      	ldr	r2, [pc, #68]	; (80017e0 <tft_send_data+0x54>)
@@ -3399,7 +3399,7 @@ void tft_send_data(uint8_t data) {
  800179e:	2201      	movs	r2, #1
  80017a0:	4618      	mov	r0, r3
  80017a2:	f000 fbeb 	bl	8001f7c <HAL_GPIO_WritePin>
-	tft_spi_cs_on(cs_port, cs_pin);
+	tft_spi_cs_on(tft_spi_cs_port, tft_spi_cs_pin);
  80017a6:	4b0f      	ldr	r3, [pc, #60]	; (80017e4 <tft_send_data+0x58>)
  80017a8:	681b      	ldr	r3, [r3, #0]
  80017aa:	4a0f      	ldr	r2, [pc, #60]	; (80017e8 <tft_send_data+0x5c>)
@@ -3407,14 +3407,14 @@ void tft_send_data(uint8_t data) {
  80017ae:	2200      	movs	r2, #0
  80017b0:	4618      	mov	r0, r3
  80017b2:	f000 fbe3 	bl	8001f7c <HAL_GPIO_WritePin>
-	tft_spi_transmit(spi_handler, data);
+	tft_spi_transmit(tft_spi_handler, data);
  80017b6:	4b0d      	ldr	r3, [pc, #52]	; (80017ec <tft_send_data+0x60>)
  80017b8:	6818      	ldr	r0, [r3, #0]
  80017ba:	1df9      	adds	r1, r7, #7
  80017bc:	2305      	movs	r3, #5
  80017be:	2201      	movs	r2, #1
  80017c0:	f003 fd73 	bl	80052aa <HAL_SPI_Transmit>
-	tft_spi_cs_off(cs_port, cs_pin);
+	tft_spi_cs_off(tft_spi_cs_port, tft_spi_cs_pin);
  80017c4:	4b07      	ldr	r3, [pc, #28]	; (80017e4 <tft_send_data+0x58>)
  80017c6:	681b      	ldr	r3, [r3, #0]
  80017c8:	4a07      	ldr	r2, [pc, #28]	; (80017e8 <tft_send_data+0x5c>)
@@ -3434,15 +3434,15 @@ void tft_send_data(uint8_t data) {
  80017ec:	200000c4 	.word	0x200000c4
 
 080017f0 <tft_reset_on>:
-	tft_spi_cs_on(cs_port, cs_pin);
-	tft_spi_transmit16(spi_handler, data);
-	tft_spi_cs_off(cs_port, cs_pin);
+	tft_spi_cs_on(tft_spi_cs_port, tft_spi_cs_pin);
+	tft_spi_transmit16(tft_spi_handler, data);
+	tft_spi_cs_off(tft_spi_cs_port, tft_spi_cs_pin);
 }
 
 void tft_reset_on() {
  80017f0:	b580      	push	{r7, lr}
  80017f2:	af00      	add	r7, sp, #0
-	tft_spi_rst_on(rst_port, rst_pin);
+	tft_spi_rst_on(tft_spi_rst_port, tft_spi_rst_pin);
  80017f4:	4b04      	ldr	r3, [pc, #16]	; (8001808 <tft_reset_on+0x18>)
  80017f6:	681b      	ldr	r3, [r3, #0]
  80017f8:	4a04      	ldr	r2, [pc, #16]	; (800180c <tft_reset_on+0x1c>)
@@ -3461,7 +3461,7 @@ void tft_reset_on() {
 void tft_reset_off() {
  8001810:	b580      	push	{r7, lr}
  8001812:	af00      	add	r7, sp, #0
-	tft_spi_rst_off(rst_port, rst_pin);
+	tft_spi_rst_off(tft_spi_rst_port, tft_spi_rst_pin);
  8001814:	4b04      	ldr	r3, [pc, #16]	; (8001828 <tft_reset_off+0x18>)
  8001816:	681b      	ldr	r3, [r3, #0]
  8001818:	4a04      	ldr	r2, [pc, #16]	; (800182c <tft_reset_off+0x1c>)
@@ -3477,9 +3477,9 @@ void tft_reset_off() {
 
 08001830 <tft_interface_init>:
 
-void tft_interface_init(SPI_HandleTypeDef *tft_spi, GPIO_TypeDef *tft_cs_port,
-		uint16_t tft_cs_pin, GPIO_TypeDef *tft_dc_port, uint16_t tft_dc_pin,
-		GPIO_TypeDef *tft_rst_port, uint16_t tft_rst_pin) {
+void tft_interface_init(SPI_HandleTypeDef *spi, GPIO_TypeDef *cs_port,
+		uint16_t cs_pin, GPIO_TypeDef *dc_port, uint16_t dc_pin,
+		GPIO_TypeDef *rst_port, uint16_t rst_pin) {
  8001830:	b580      	push	{r7, lr}
  8001832:	b084      	sub	sp, #16
  8001834:	af00      	add	r7, sp, #0
@@ -3489,36 +3489,36 @@ void tft_interface_init(SPI_HandleTypeDef *tft_spi, GPIO_TypeDef *tft_cs_port,
  800183c:	4613      	mov	r3, r2
  800183e:	80fb      	strh	r3, [r7, #6]
 
-	spi_handler = tft_spi;
+	tft_spi_handler = spi;
  8001840:	4a10      	ldr	r2, [pc, #64]	; (8001884 <tft_interface_init+0x54>)
  8001842:	68fb      	ldr	r3, [r7, #12]
  8001844:	6013      	str	r3, [r2, #0]
-	cs_port = tft_cs_port;
+	tft_spi_cs_port = cs_port;
  8001846:	4a10      	ldr	r2, [pc, #64]	; (8001888 <tft_interface_init+0x58>)
  8001848:	68bb      	ldr	r3, [r7, #8]
  800184a:	6013      	str	r3, [r2, #0]
-	cs_pin = tft_cs_pin;
+	tft_spi_cs_pin = cs_pin;
  800184c:	4a0f      	ldr	r2, [pc, #60]	; (800188c <tft_interface_init+0x5c>)
  800184e:	88fb      	ldrh	r3, [r7, #6]
  8001850:	8013      	strh	r3, [r2, #0]
-	dc_port = tft_dc_port;
+	tft_spi_dc_port = dc_port;
  8001852:	4a0f      	ldr	r2, [pc, #60]	; (8001890 <tft_interface_init+0x60>)
  8001854:	683b      	ldr	r3, [r7, #0]
  8001856:	6013      	str	r3, [r2, #0]
-	dc_pin = tft_dc_pin;
+	tft_spi_dc_pin = dc_pin;
  8001858:	4a0e      	ldr	r2, [pc, #56]	; (8001894 <tft_interface_init+0x64>)
  800185a:	8b3b      	ldrh	r3, [r7, #24]
  800185c:	8013      	strh	r3, [r2, #0]
-	rst_port = tft_rst_port;
+	tft_spi_rst_port = rst_port;
  800185e:	4a0e      	ldr	r2, [pc, #56]	; (8001898 <tft_interface_init+0x68>)
  8001860:	69fb      	ldr	r3, [r7, #28]
  8001862:	6013      	str	r3, [r2, #0]
-	rst_pin = tft_rst_pin;
+	tft_spi_rst_pin = rst_pin;
  8001864:	4a0d      	ldr	r2, [pc, #52]	; (800189c <tft_interface_init+0x6c>)
  8001866:	8c3b      	ldrh	r3, [r7, #32]
  8001868:	8013      	strh	r3, [r2, #0]
 
-	tft_spi_cs_off(cs_port, cs_pin);
+	tft_spi_cs_off(tft_spi_cs_port, tft_spi_cs_pin);
  800186a:	4b07      	ldr	r3, [pc, #28]	; (8001888 <tft_interface_init+0x58>)
  800186c:	681b      	ldr	r3, [r3, #0]
  800186e:	4a07      	ldr	r2, [pc, #28]	; (800188c <tft_interface_init+0x5c>)
