@@ -7,52 +7,54 @@
 
 #include "tft_spi.h"
 
-static TFT *tft;
+static SPI_HandleTypeDef *spi_handler;
+static GPIO_TypeDef *cs_port;
+static GPIO_TypeDef *dc_port;
+static GPIO_TypeDef *rst_port;
+static uint16_t cs_pin;
+static uint16_t dc_pin;
+static uint16_t rst_pin;
 
 void tft_send_cmd(uint8_t cmd) {
-	tft_spi_dc_cmd(tft);
-	tft_spi_cs_on(tft);
-	tft_spi_transmit(tft, cmd);
-	tft_spi_cs_off(tft);
+	tft_spi_dc_cmd(dc_port, dc_pin);
+	tft_spi_cs_on(cs_port, cs_pin);
+	tft_spi_transmit(spi_handler, cmd);
+	tft_spi_cs_off(cs_port, cs_pin);
 }
 
 void tft_send_data(uint8_t data) {
-	tft_spi_dc_data(tft);
-	tft_spi_cs_on(tft);
-	tft_spi_transmit(tft, data);
-	tft_spi_cs_off(tft);
+	tft_spi_dc_data(dc_port, dc_pin);
+	tft_spi_cs_on(cs_port, cs_pin);
+	tft_spi_transmit(spi_handler, data);
+	tft_spi_cs_off(cs_port, cs_pin);
 }
 
 void tft_send_data16(uint16_t data) {
-	tft_spi_dc_data(tft);
-	tft_spi_cs_on(tft);
-	tft_spi_transmit16(tft, data);
-	tft_spi_cs_off(tft);
+	tft_spi_dc_data(dc_port, dc_pin);
+	tft_spi_cs_on(cs_port, cs_pin);
+	tft_spi_transmit16(spi_handler, data);
+	tft_spi_cs_off(cs_port, cs_pin);
 }
 
-void tft_reset_on(){
-	tft_spi_rst_on(tft);
+void tft_reset_on() {
+	tft_spi_rst_on(rst_port, rst_pin);
 }
 
-void tft_reset_off(){
-	tft_spi_rst_off(tft);
+void tft_reset_off() {
+	tft_spi_rst_off(rst_port, rst_pin);
 }
 
-void tft_interface_init(SPI_HandleTypeDef *spi, GPIO_TypeDef *cs_port,
-		uint16_t cs_pin, GPIO_TypeDef *dc_port, uint16_t dc_pin,
-		GPIO_TypeDef *rst_port, uint16_t rst_pin) {
+void tft_interface_init(SPI_HandleTypeDef *tft_spi, GPIO_TypeDef *tft_cs_port,
+		uint16_t tft_cs_pin, GPIO_TypeDef *tft_dc_port, uint16_t tft_dc_pin,
+		GPIO_TypeDef *tft_rst_port, uint16_t tft_rst_pin) {
 
-	tft = (TFT*) malloc(sizeof(TFT));
+	spi_handler = tft_spi;
+	cs_port = tft_cs_port;
+	cs_pin = tft_cs_pin;
+	dc_port = tft_dc_port;
+	dc_pin = tft_dc_pin;
+	rst_port = tft_rst_port;
+	rst_pin = tft_rst_pin;
 
-	tft->spi_handler = spi;
-	tft->cs_port = cs_port;
-	tft->cs_pin = cs_pin;
-	tft->dc_port = dc_port;
-	tft->dc_pin = dc_pin;
-	tft->rst_port = rst_port;
-	tft->rst_pin = rst_pin;
-
-	tft_spi_cs_off(tft);
-
-	return tft;
+	tft_spi_cs_off(cs_port, cs_pin);
 }
