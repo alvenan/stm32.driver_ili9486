@@ -34,9 +34,11 @@ typedef struct {
 	uint16_t rst_pin;
 } TFT;
 
-void tft_send_cmd(TFT *tft_struct, uint8_t cmd);
-void tft_send_data(TFT *tft_struct, uint8_t data);
-TFT* tft_interface_init(SPI_HandleTypeDef *spi, GPIO_TypeDef *cs_port,
+void tft_send_cmd(uint8_t cmd);
+void tft_send_data(uint8_t data);
+void tft_reset_on();
+void tft_reset_off();
+void tft_interface_init(SPI_HandleTypeDef *spi, GPIO_TypeDef *cs_port,
 		uint16_t cs_pin, GPIO_TypeDef *dc_port, uint16_t dc_pin,
 		GPIO_TypeDef *rst_port, uint16_t rst_pin);
 

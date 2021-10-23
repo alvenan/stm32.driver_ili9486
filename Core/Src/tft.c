@@ -7,7 +7,6 @@
 
 #include "tft.h"
 
-static TFT *tft;
 static uint8_t rot_num = 1;
 static uint32_t tft_width, tft_height, tft_pixel_count;
 static uint8_t _cp437 = 0;
@@ -135,137 +134,137 @@ void tft_init(SPI_HandleTypeDef *spi, GPIO_TypeDef *cs_port, uint16_t cs_pin,
 	tft_height = height;
 	tft_pixel_count = width * height;
 
-	tft = tft_interface_init(spi, cs_port, cs_pin, dc_port, dc_pin, rst_port,
+	tft_interface_init(spi, cs_port, cs_pin, dc_port, dc_pin, rst_port,
 			rst_pin);
 
-	tft_spi_rst_off(tft);
-	tft_spi_rst_on(tft);
-	tft_spi_rst_off(tft);
+	tft_reset_off();
+	tft_reset_on();
+	tft_reset_off();
 
-	tft_send_cmd(tft, TFTCMD_NOP);
-	tft_send_data(tft, 0x00);
-	tft_send_cmd(tft, TFTCMD_SLEEP_OUT);
+	tft_send_cmd(TFTCMD_NOP);
+	tft_send_data(0x00);
+	tft_send_cmd(TFTCMD_SLEEP_OUT);
 
 	tft_delay(150);
 #ifdef TFT_ILI9486
-	tft_send_cmd(tft, TFTCMD_PIXEL_FORMAT);
-	tft_send_data(tft, 0x55);
+	tft_send_cmd(TFTCMD_PIXEL_FORMAT);
+	tft_send_data(0x55);
 
-	tft_send_cmd(tft, TFTCMD_MAC);
-	tft_send_data(tft, 0x48);
+	tft_send_cmd(TFTCMD_MAC);
+	tft_send_data(0x48);
 
-	tft_send_cmd(tft, TFTCMD_POWER3);
-	tft_send_data(tft, 0x44);
+	tft_send_cmd(TFTCMD_POWER3);
+	tft_send_data(0x44);
 
-	tft_send_cmd(tft, TFTCMD_VCOM1);
-	tft_send_data(tft, 0x00);
-	tft_send_data(tft, 0x00);
-	tft_send_data(tft, 0x00);
-	tft_send_data(tft, 0x00);
+	tft_send_cmd(TFTCMD_VCOM1);
+	tft_send_data(0x00);
+	tft_send_data(0x00);
+	tft_send_data(0x00);
+	tft_send_data(0x00);
 
-	tft_send_cmd(tft, TFTCMD_PGAMMA);
-	tft_send_data(tft, 0x0f);
-	tft_send_data(tft, 0x1f);
-	tft_send_data(tft, 0x1c);
-	tft_send_data(tft, 0x0c);
-	tft_send_data(tft, 0x0f);
-	tft_send_data(tft, 0x08);
-	tft_send_data(tft, 0x48);
-	tft_send_data(tft, 0x98);
-	tft_send_data(tft, 0x37);
-	tft_send_data(tft, 0x0a);
-	tft_send_data(tft, 0x13);
-	tft_send_data(tft, 0x04);
-	tft_send_data(tft, 0x11);
-	tft_send_data(tft, 0x0d);
-	tft_send_data(tft, 0x00);
+	tft_send_cmd(TFTCMD_PGAMMA);
+	tft_send_data(0x0f);
+	tft_send_data(0x1f);
+	tft_send_data(0x1c);
+	tft_send_data(0x0c);
+	tft_send_data(0x0f);
+	tft_send_data(0x08);
+	tft_send_data(0x48);
+	tft_send_data(0x98);
+	tft_send_data(0x37);
+	tft_send_data(0x0a);
+	tft_send_data(0x13);
+	tft_send_data(0x04);
+	tft_send_data(0x11);
+	tft_send_data(0x0d);
+	tft_send_data(0x00);
 
-	tft_send_cmd(tft, TFTCMD_NGAMMA);
-	tft_send_data(tft, 0x0f);
-	tft_send_data(tft, 0x32);
-	tft_send_data(tft, 0x2e);
-	tft_send_data(tft, 0x0b);
-	tft_send_data(tft, 0x0d);
-	tft_send_data(tft, 0x05);
-	tft_send_data(tft, 0x47);
-	tft_send_data(tft, 0x75);
-	tft_send_data(tft, 0x37);
-	tft_send_data(tft, 0x06);
-	tft_send_data(tft, 0x10);
-	tft_send_data(tft, 0x03);
-	tft_send_data(tft, 0x24);
-	tft_send_data(tft, 0x20);
-	tft_send_data(tft, 0x00);
+	tft_send_cmd(TFTCMD_NGAMMA);
+	tft_send_data(0x0f);
+	tft_send_data(0x32);
+	tft_send_data(0x2e);
+	tft_send_data(0x0b);
+	tft_send_data(0x0d);
+	tft_send_data(0x05);
+	tft_send_data(0x47);
+	tft_send_data(0x75);
+	tft_send_data(0x37);
+	tft_send_data(0x06);
+	tft_send_data(0x10);
+	tft_send_data(0x03);
+	tft_send_data(0x24);
+	tft_send_data(0x20);
+	tft_send_data(0x00);
 
-	tft_send_cmd(tft, TFTCMD_GAMMA_CTRL1);
-	tft_send_data(tft, 0x0f);
-	tft_send_data(tft, 0x32);
-	tft_send_data(tft, 0x2e);
-	tft_send_data(tft, 0x0b);
-	tft_send_data(tft, 0x0d);
-	tft_send_data(tft, 0x05);
-	tft_send_data(tft, 0x47);
-	tft_send_data(tft, 0x75);
-	tft_send_data(tft, 0x37);
-	tft_send_data(tft, 0x06);
-	tft_send_data(tft, 0x10);
-	tft_send_data(tft, 0x03);
-	tft_send_data(tft, 0x24);
-	tft_send_data(tft, 0x20);
-	tft_send_data(tft, 0x00);
+	tft_send_cmd(TFTCMD_GAMMA_CTRL1);
+	tft_send_data(0x0f);
+	tft_send_data(0x32);
+	tft_send_data(0x2e);
+	tft_send_data(0x0b);
+	tft_send_data(0x0d);
+	tft_send_data(0x05);
+	tft_send_data(0x47);
+	tft_send_data(0x75);
+	tft_send_data(0x37);
+	tft_send_data(0x06);
+	tft_send_data(0x10);
+	tft_send_data(0x03);
+	tft_send_data(0x24);
+	tft_send_data(0x20);
+	tft_send_data(0x00);
 #endif
-	tft_send_cmd(tft, TFTCMD_SLEEP_OUT);
-	tft_send_cmd(tft, TFTCMD_DISPLAY_ON);
+	tft_send_cmd(TFTCMD_SLEEP_OUT);
+	tft_send_cmd(TFTCMD_DISPLAY_ON);
 
 	tft_delay(150);
 
 }
 
 void tft_set_rotation(uint8_t rotate) {
-	tft_send_cmd(tft, MEMCONTROL);
+	tft_send_cmd(MEMCONTROL);
 	switch (rotate) {
 	case 1:
 		rot_num = 1;
-		tft_send_data(tft,
+		tft_send_data(
 		MADCTL_MY | MADCTL_BGR);
 		break;
 	case 2:
 		rot_num = 2;
-		tft_send_data(tft,
+		tft_send_data(
 		MADCTL_MV | MADCTL_BGR);
 		break;
 	case 3:
 		rot_num = 3;
-		tft_send_data(tft,
+		tft_send_data(
 		MADCTL_MX | MADCTL_BGR);
 		break;
 	case 4:
 		rot_num = 4;
-		tft_send_data(tft,
+		tft_send_data(
 		MADCTL_MX | MADCTL_MY | MADCTL_MV | MADCTL_BGR);
 		break;
 	default:
 		rot_num = 1;
-		tft_send_data(tft,
+		tft_send_data(
 		MADCTL_MY | MADCTL_BGR);
 		break;
 	}
 }
 void tft_cursor_position(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1) {
 
-	tft_send_cmd(tft, TFTCMD_COLUMN_ADDR);
-	tft_send_data(tft, x0 >> 8);
-	tft_send_data(tft, x0 & 0xff);
-	tft_send_data(tft, x1 >> 8);
-	tft_send_data(tft, x1 & 0xff);
+	tft_send_cmd( TFTCMD_COLUMN_ADDR);
+	tft_send_data(x0 >> 8);
+	tft_send_data(x0 & 0xff);
+	tft_send_data(x1 >> 8);
+	tft_send_data(x1 & 0xff);
 
-	tft_send_cmd(tft, TFTCMD_PAGE_ADDR);
-	tft_send_data(tft, y0 >> 8);
-	tft_send_data(tft, y0 & 0xff);
-	tft_send_data(tft, y1 >> 8);
-	tft_send_data(tft, y1 & 0xff);
+	tft_send_cmd( TFTCMD_PAGE_ADDR);
+	tft_send_data(y0 >> 8);
+	tft_send_data(y0 & 0xff);
+	tft_send_data(y1 >> 8);
+	tft_send_data(y1 & 0xff);
 
-	tft_send_cmd(tft, TFTCMD_GRAM);
+	tft_send_cmd(TFTCMD_GRAM);
 }
 
 void tft_main_draw(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1,
@@ -277,8 +276,8 @@ void tft_main_draw(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1,
 
 	tft_cursor_position(x0, y0, x1, y1);
 	for (; n > 0; n--) {
-		tft_send_data(tft, color >> 8);
-		tft_send_data(tft, color & 0xff);
+		tft_send_data(color >> 8);
+		tft_send_data(color & 0xff);
 	}
 }
 
@@ -417,10 +416,9 @@ void tft_draw_circle(int16_t x0, int16_t y0, int16_t r, uint16_t color) {
 }
 
 void tft_fill_circle(int16_t x, int16_t y, int16_t r, uint16_t color) {
-	tft_draw_vertical_line(x, y-r, 2*r+1, color);
+	tft_draw_vertical_line(x, y - r, 2 * r + 1, color);
 	tft_fill_circle_helper(x, y, r, 3, 0, color);
 }
-
 
 void tft_draw_circle_helper(int16_t x0, int16_t y0, int16_t r,
 		uint8_t cornername, uint16_t color) {
