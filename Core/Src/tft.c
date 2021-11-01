@@ -10,9 +10,13 @@
 
 static uint8_t rot_num = 1;
 static uint32_t tft_width, tft_height, tft_pixel_count;
-static uint8_t _cp437 = 0;
 
-uint8_t cursor_y = 0, cursor_x = 0;
+uint16_t cursor_y = 0, cursor_x = 0;
+uint8_t textsize = 1;
+uint16_t textcolor = 0xffff, textbgcolor = 0xFFFF;
+uint8_t wrap = 1;
+uint8_t _cp437 = 0;
+uint8_t rotation = 0;
 
 uint16_t color565(uint8_t r, uint8_t g, uint8_t b) {
 	return ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | ((b & 0xF8) >> 3);
@@ -460,7 +464,7 @@ void tft_fill_triangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
 	}
 }
 
-void tft_draw_char(int16_t x, int16_t y, unsigned char c, uint16_t color,
+void tft_draw_char_old(int16_t x, int16_t y, unsigned char c, uint16_t color,
 		uint16_t bg, uint8_t size) {
 
 	if (rot_num == 1 || rot_num == 3) {
@@ -506,16 +510,317 @@ void tft_draw_char(int16_t x, int16_t y, unsigned char c, uint16_t color,
 	}
 }
 
-void tft_draw_RGB_bitmap(int16_t x, int16_t y, const uint16_t bitmap[],
-		int16_t w, int16_t h) {
-	for (int16_t j = 0; j < h; j++, y++) {
-		for (int16_t i = 0; i < w; i++) {
-			tft_draw_pixel(x + i, y, pgm_read_word(&bitmap[j * w + i]));
+void tft_set_font(const GFXfont *f) {
+	if (f) {
+		if (!gfxFont) {
+			cursor_y += 6;
+		}
+	} else if (gfxFont)
+		cursor_y -= 6;
+
+	gfxFont = (GFXfont*) f;
+}
+
+void tft_draw_char(int16_t x, int16_t y, unsigned char c, uint16_t color,
+		uint16_t bg, uint8_t size) {
+
+	c -= (uint8_t) pgm_read_byte(&gfxFont->first);
+	GFXglyph *glyph = &(((GFXglyph*) pgm_read_pointer(&gfxFont->glyph))[c]);
+	uint8_t *bitmap = (uint8_t*) pgm_read_pointer(&gfxFont->bitmap);
+
+	uint16_t bo = pgm_read_word(&glyph->bitmapOffset);
+	uint8_t w = pgm_read_byte(&glyph->width), h = pgm_read_byte(&glyph->height);
+	int8_t xo = pgm_read_byte(&glyph->xOffset), yo = pgm_read_byte(
+			&glyph->yOffset);
+	uint8_t xx, yy, bits = 0, bit = 0;
+	int16_t xo16 = 0, yo16 = 0;
+
+	if (size > 1) {
+		xo16 = xo;
+		yo16 = yo;
+	}
+
+	for (yy = 0; yy < h; yy++) {
+		for (xx = 0; xx < w; xx++) {
+			if (!(bit++ & 7)) {
+				bits = pgm_read_byte(&bitmap[bo++]);
+			}
+			if (bits & 0x80) {
+				if (size == 1) {
+					tft_draw_pixel(x + xo + xx, y + yo + yy, color);
+				} else {
+					tft_fill_rect(x + (xo16 + xx) * size,
+							y + (yo16 + yy) * size, size, size, color);
+				}
+			}
+			bits <<= 1;
 		}
 	}
 }
 
-// Testes
+size_t tft_write_char(uint8_t c) {
+	if (c == '\n') {
+		cursor_x = 0;
+		cursor_y += (int16_t) textsize
+				* (uint8_t) pgm_read_byte(&gfxFont->yAdvance);
+	} else if (c != '\r') {
+		uint8_t first = pgm_read_byte(&gfxFont->first);
+		if ((c >= first) && (c <= (uint8_t) pgm_read_byte(&gfxFont->last))) {
+			GFXglyph *glyph =
+					&(((GFXglyph*) pgm_read_pointer(&gfxFont->glyph))[c - first]);
+			uint8_t w = pgm_read_byte(&glyph->width), h = pgm_read_byte(
+					&glyph->height);
+			if ((w > 0) && (h > 0)) { // Is there an associated bitmap?
+				int16_t xo = (int8_t) pgm_read_byte(&glyph->xOffset); // sic
+				if (wrap && ((cursor_x + textsize * (xo + w)) > tft_width)) {
+					cursor_x = 0;
+					cursor_y += (int16_t) textsize
+							* (uint8_t) pgm_read_byte(&gfxFont->yAdvance);
+				}
+				tft_draw_char(cursor_x, cursor_y, c, textcolor, textbgcolor,
+						textsize);
+			}
+			cursor_x += (uint8_t) pgm_read_byte(&glyph->xAdvance)
+					* (int16_t) textsize;
+		}
+	}
+	return 1;
+}
+
+size_t tft_write_char_bg(uint8_t c) {
+	if (c == '\n') {
+		cursor_x = 0;
+		cursor_y += (int16_t) textsize
+				* (uint8_t) pgm_read_byte(&gfxFont->yAdvance);
+	} else if (c != '\r') {
+		uint8_t first = pgm_read_byte(&gfxFont->first);
+		if ((c >= first) && (c <= (uint8_t) pgm_read_byte(&gfxFont->last))) {
+			uint8_t maior = '/';
+			GFXglyph *glyph2 =
+					&(((GFXglyph*) pgm_read_pointer(&gfxFont->glyph))[maior
+							- first]);
+			int16_t xx = cursor_x;
+			int8_t yo = pgm_read_byte(&glyph2->yOffset);
+			int16_t yy = (int16_t) cursor_y + yo * textsize;
+			int16_t ww = pgm_read_byte(&glyph2->xAdvance) * textsize;
+			int16_t hh = pgm_read_byte(&glyph2->height) * textsize;
+			tft_fill_rect(xx, yy, ww, hh, textbgcolor);
+
+			GFXglyph *glyph =
+					&(((GFXglyph*) pgm_read_pointer(&gfxFont->glyph))[c - first]);
+			uint8_t w = pgm_read_byte(&glyph->width), h = pgm_read_byte(
+					&glyph->height);
+			if ((w > 0) && (h > 0)) // Is there an associated bitmap?
+					{
+				int16_t xo = (int8_t) pgm_read_byte(&glyph->xOffset); // sic
+				if (wrap && ((cursor_x + textsize * (xo + w)) > tft_width)) {
+					cursor_x = 0;
+					cursor_y += (int16_t) textsize
+							* (uint8_t) pgm_read_byte(&gfxFont->yAdvance);
+
+					xx = cursor_x;
+					yy = (int16_t) cursor_y + yo * textsize;
+					tft_fill_rect(xx, yy, ww, hh, textbgcolor);
+				}
+				tft_draw_char(cursor_x, cursor_y, c, textcolor, textbgcolor,
+						textsize);
+			}
+			cursor_x += (uint8_t) pgm_read_byte(&glyph->xAdvance)
+					* (int16_t) textsize;
+		}
+	}
+	return 1;
+}
+/*
+ size_t tft_write_char_bg(uint8_t c) {
+ if (c == '\n') {
+ cursor_x = cursor_y += (int16_t) textsize
+ * (uint8_t) pgm_read_byte(&gfxFont->yAdvance);
+ } else if (c != '\r') {
+ uint8_t first = pgm_read_byte(&gfxFont->first);
+ if ((c >= first) && (c <= (uint8_t) pgm_read_byte(&gfxFont->last))) {
+ uint8_t maior = '/';
+ GFXglyph *glyph2 =
+ &(((GFXglyph*) pgm_read_pointer(&gfxFont->glyph))[maior
+ - first]);
+ int16_t xx = cursor_x;
+ int8_t yo = pgm_read_byte(&glyph2->yOffset);
+ int16_t yy = cursor_y;
+ int16_t ww = pgm_read_byte(&glyph2->xAdvance) * textsize;
+ int16_t hh = pgm_read_byte(&glyph2->height) * textsize;
+ tft_fill_rect(xx, yy, ww, hh, textbgcolor);
+
+ GFXglyph *glyph =
+ &(((GFXglyph*) pgm_read_pointer(&gfxFont->glyph))[c - first]);
+ uint8_t w = pgm_read_byte(&glyph->width), h = pgm_read_byte(
+ &glyph->height);
+ if ((w > 0) && (h > 0)) // Is there an associated bitmap?
+ {
+ int16_t xo = (int8_t) pgm_read_byte(&glyph->xOffset);
+ if (wrap && ((cursor_x + textsize * (xo + w)) > tft_width)) {
+ cursor_x = 0;
+ cursor_y += (int16_t) textsize
+ * (uint8_t) pgm_read_byte(&gfxFont->yAdvance);
+
+ xx = cursor_x;
+ yy = cursor_y;
+ yy = (int16_t) cursor_y + yo * textsize;
+ tft_fill_rect(xx, yy, ww, hh, textbgcolor);
+ }
+ tft_draw_char(cursor_x, cursor_y, c, textcolor, textbgcolor,
+ textsize);
+ }
+ cursor_x += (uint8_t) pgm_read_byte(&glyph->xAdvance)
+ * (int16_t) textsize;
+ }
+ }
+ return 1;
+ }
+ */
+void tft_char_bounds(char c, int16_t *x, int16_t *y, int16_t *minx,
+		int16_t *miny, int16_t *maxx, int16_t *maxy) {
+
+	if (gfxFont) {
+
+		if (c == '\n') {
+			*x = 0;
+			*y += textsize * (uint8_t) pgm_read_byte(&gfxFont->yAdvance);
+		} else if (c != '\r') {
+			uint8_t first = pgm_read_byte(&gfxFont->first), last =
+					pgm_read_byte(&gfxFont->last);
+			if ((c >= first) && (c <= last)) {
+				GFXglyph *glyph = &(((GFXglyph*) pgm_read_pointer(
+						&gfxFont->glyph))[c - first]);
+				uint8_t gw = pgm_read_byte(&glyph->width), gh = pgm_read_byte(
+						&glyph->height), xa = pgm_read_byte(&glyph->xAdvance);
+				int8_t xo = pgm_read_byte(&glyph->xOffset), yo = pgm_read_byte(
+						&glyph->yOffset);
+				if (wrap
+						&& ((*x + (((int16_t) xo + gw) * textsize)) > tft_width)) {
+					*x = 0;
+					*y +=
+							textsize
+									* (uint8_t) pgm_read_byte(
+											&gfxFont->yAdvance);
+				}
+				int16_t ts = (int16_t) textsize, x1 = *x + xo * ts, y1 = *y
+						+ yo * ts, x2 = x1 + gw * ts - 1, y2 = y1 + gh * ts - 1;
+				if (x1 < *minx)
+					*minx = x1;
+				if (y1 < *miny)
+					*miny = y1;
+				if (x2 > *maxx)
+					*maxx = x2;
+				if (y2 > *maxy)
+					*maxy = y2;
+				*x += xa * ts;
+			}
+		}
+
+	} else {
+
+		if (c == '\n') {
+			*x = 0;
+			*y += textsize * 8;
+		} else if (c != '\r') {
+			if (wrap && ((*x + textsize * 6) > tft_width)) {
+				*x = 0;
+				*y += textsize * 8;
+			}
+			int x2 = *x + textsize * 6 - 1, y2 = *y + textsize * 8 - 1;
+			if (x2 > *maxx)
+				*maxx = x2;
+			if (y2 > *maxy)
+				*maxy = y2;
+			if (*x < *minx)
+				*minx = *x;
+			if (*y < *miny)
+				*miny = *y;
+			*x += textsize * 6;
+		}
+	}
+}
+
+void tft_get_text_bounds(const char *str, int16_t x, int16_t y, int16_t *x1,
+		int16_t *y1, uint16_t *w, uint16_t *h) {
+	uint8_t c;
+
+	*x1 = x;
+	*y1 = y;
+	*w = *h = 0;
+
+	int16_t minx = tft_width, miny = tft_height, maxx = -1, maxy = -1;
+
+	while ((c = *str++))
+		tft_char_bounds(c, &x, &y, &minx, &miny, &maxx, &maxy);
+
+	if (maxx >= minx) {
+		*x1 = minx;
+		*w = maxx - minx + 1;
+	}
+	if (maxy >= miny) {
+		*y1 = miny;
+		*h = maxy - miny + 1;
+	}
+}
+
+void tft_print_newstr(int row, uint16_t txtcolor, const GFXfont *f,
+		uint8_t txtsize, char *str) {
+	tft_set_font(f);
+	textcolor = txtcolor;
+	textsize = (txtsize > 0) ? txtsize : 1;
+	tft_set_cursor(0, row);
+	while (*str)
+		tft_write_char(*str++);
+}
+
+void tft_print_newstr_bg(int row, uint16_t txtcolor, uint16_t txtbackcolor,
+		const GFXfont *f, uint8_t txtsize, char *str) {
+	tft_set_font(f);
+	textcolor = txtcolor;
+	textbgcolor = txtbackcolor;
+	textsize = (txtsize > 0) ? txtsize : 1;
+	tft_set_cursor(0, row);
+	while (*str)
+		tft_write_char_bg(*str++);
+}
+
+void tft_print_str(uint8_t *str) {
+	while (*str)
+		tft_write_char(*str++);
+}
+
+void tft_print_str_bg(uint8_t *str) {
+	while (*str)
+		tft_write_char_bg(*str++);
+}
+
+void tft_set_cursor(int16_t x, int16_t y) {
+	cursor_x = x;
+	cursor_y = y;
+}
+
+void tft_set_text_wrap(uint8_t w) {
+	wrap = w;
+}
+
+void tft_set_text_color(uint16_t color) {
+	textcolor = color;
+}
+
+void tft_set_text_size(uint8_t size) {
+	textsize = size;
+}
+
+void tft_set_text_bgcolor(uint16_t color) {
+	textbgcolor = color;
+}
+
+uint8_t tft_get_rotation() {
+	return rotation;
+}
+
+// Testes  			***************************************************************************************
 void test_fill_screen() {
 
 	tft_fill_screen(COLOR_BLACK);

@@ -1,6 +1,7 @@
 "./Core/Src/NJ.o"
 "./Core/Src/batman.o"
 "./Core/Src/bean.o"
+"./Core/Src/fonts.o"
 "./Core/Src/fosforo.o"
 "./Core/Src/main.o"
 "./Core/Src/stm32f4xx_hal_msp.o"

@@ -8,6 +8,7 @@ C_SRCS += \
 ../Core/Src/NJ.c \
 ../Core/Src/batman.c \
 ../Core/Src/bean.c \
+../Core/Src/fonts.c \
 ../Core/Src/fosforo.c \
 ../Core/Src/main.c \
 ../Core/Src/stm32f4xx_hal_msp.c \
@@ -22,6 +23,7 @@ C_DEPS += \
 ./Core/Src/NJ.d \
 ./Core/Src/batman.d \
 ./Core/Src/bean.d \
+./Core/Src/fonts.d \
 ./Core/Src/fosforo.d \
 ./Core/Src/main.d \
 ./Core/Src/stm32f4xx_hal_msp.d \
@@ -36,6 +38,7 @@ OBJS += \
 ./Core/Src/NJ.o \
 ./Core/Src/batman.o \
 ./Core/Src/bean.o \
+./Core/Src/fonts.o \
 ./Core/Src/fosforo.o \
 ./Core/Src/main.o \
 ./Core/Src/stm32f4xx_hal_msp.o \

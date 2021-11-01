@@ -9,6 +9,7 @@
 #define TFT_H_
 
 #include "stm32f4xx_hal.h"
+#include "fonts.h"
 
 #define TFT_SPI
 #define TFT_ILI9486
@@ -110,8 +111,18 @@ void tft_fill_triangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
 		int16_t x2, int16_t y2, uint16_t color);
 
 //Characters
+void tft_set_font(const GFXfont *f);
 void tft_draw_char(int16_t x, int16_t y, unsigned char c, uint16_t color,
 		uint16_t bg, uint8_t size);
+size_t tft_write_char(uint8_t c);
+size_t tft_write_char_bg(uint8_t c);
+void tft_print_newstr(int row, uint16_t txtcolor, const GFXfont *f,
+		uint8_t txtsize, char *str);
+void tft_print_newstr_bg(int row, uint16_t txtcolor, uint16_t txtbackcolor,
+		const GFXfont *f, uint8_t txtsize, char *str);
+void tft_print_str(uint8_t *str);
+void tft_print_str_bg(uint8_t *str);
+void tft_set_cursor(int16_t x, int16_t y);
 
 // Pictures
 void tft_draw_RGB_bitmap(int16_t x, int16_t y, const uint16_t bitmap[],

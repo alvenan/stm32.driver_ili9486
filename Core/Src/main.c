@@ -24,6 +24,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "tft.h"
+#include "fonts.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -109,12 +110,18 @@ int main(void) {
 	LCD_DC_GPIO_Port, LCD_DC_Pin,
 	LCD_RST_GPIO_Port, LCD_RST_Pin, 480, 320);
 	tft_set_rotation(4);
-	tft_fill_screen(COLOR_WHITE);
+	tft_fill_screen(COLOR_BLACK);
 
 	/* USER CODE END 2 */
 
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
+
+	uint16_t lcd_offset = 20;
+	tft_print_newstr(lcd_offset, COLOR_GREEN, &mono12x7bold, 1, "");
+	tft_print_newstr(lcd_offset*2, COLOR_GREEN, &mono12x7bold, 1, "");
+	tft_print_newstr(lcd_offset*3, COLOR_GREEN, &mono12x7bold, 1, "");
+
 	while (1) {
 		/* USER CODE END WHILE */
 		MX_USB_HOST_Process();
@@ -329,8 +336,7 @@ static void MX_GPIO_Init(void) {
 
 	/*Configure GPIO pin Output Level */
 	HAL_GPIO_WritePin(GPIOD,
-			LD4_Pin | LD3_Pin | LD5_Pin | LD6_Pin | Audio_RST_Pin,
-			GPIO_PIN_RESET);
+	LD4_Pin | LD3_Pin | LD5_Pin | LD6_Pin | Audio_RST_Pin, GPIO_PIN_RESET);
 
 	/*Configure GPIO pins : CS_I2C_SPI_Pin LCD_DC_Pin LCD_RST_Pin */
 	GPIO_InitStruct.Pin = CS_I2C_SPI_Pin | LCD_DC_Pin | LCD_RST_Pin;
